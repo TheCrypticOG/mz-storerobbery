@@ -1,11 +1,20 @@
 Config = {}
 
-Config.minEarn = 100
-Config.maxEarn = 450
-Config.RegisterEarnings = math.random(Config.minEarn, Config.maxEarn)
-Config.MinimumStoreRobberyPolice = 2
+Config.NotifyType = 'okok' -- Notification type (use 'qbcore' if you do not know what this is)
+
+Config.UsingSkills = 'yes' -- Set to 'yes' if using mz-skills, otherwise set to 'no'
+
+Config.MinimumStoreRobberyPolice = 0
 Config.resetTime = (60 * 1000) * 30
 Config.tickInterval = 1000
+
+--CASH REGISTERS
+Config.minRegisterEarn = 2000 -- Minimum amount earnt from stealing from a cash register (in dirtymoney)
+Config.maxRegisterEarn = 5000 -- Maximum amount earnt from stealing from a cash register (in dirtymoney)
+Config.RegisterTime = 25 -- Time it takes for player to rob cash register after lockpicking (in seconds)
+
+--Chance to drop liquor key
+Config.liquorKey = 35 -- Percentage chance to find a key to the liquor storeroom
 
 Config.Registers = {
     [1] = {vector3(-47.24,-1757.65, 29.53), robbed = false, time = 0, safeKey = 1, camId = 4},
@@ -42,6 +51,54 @@ Config.Registers = {
     [32] = {vector3(162.16, 6643.22, 31.6), robbed = false, time = 0, safeKey = 19, camId = 29},
 }
 
+----------------------------
+--SAFE (CONVENIENCE STORE)--
+----------------------------
+Config.minSafeEarn = 7000 -- Minimum amount earnt from stealing from a safe (in dirtymoney)
+Config.maxSafeEarn = 22000 -- Maximum amount earnt from stealing from a safe (in dirtymoney)
+Config.SafeTime = 25 -- Time it takes for player to rob safe (in seconds)
+Config.StressForFailing = 10 -- Amount of stress a player incurs for failing to breach a safe
+
+--HACK TYPE (Choose the type of hack for convenience store safes from: 'varHack', 'maze', 'numberMatch', 'numberMaze', 'scrambler' (all configured to work with or without mz-skills))
+Config.Hacktype = 'scrambler'
+
+--RARE DROPS (In addition to dirtymoney)
+--Rare item 1
+Config.RareItem1 = "rolex" -- Name of the rare item that will drop
+Config.RareItem1Chance = 20 -- Percentage chance to obtain the rare item drop from robbing a safe.
+Config.RareItemAmount = 2 -- Amount of the rare item player will receive if chance is triggered
+--Rare item 2 (Note: chance for drop is independent for each rare item listed)
+Config.RareItem2 = "goldbar" -- Name of the rare item that will drop
+Config.RareItem2Chance = 10 -- Percentage chance to obtain the rare item drop from robbing a safe.
+Config.RareItem2Amount = 1 -- Amount of the rare item player will receive if chance is triggered
+--Rare item 3 (Note: chance for drop is independent for each rare item listed)
+Config.RareItem3 = "weapon_pistol" -- Name of the rare item that will drop
+Config.RareItem3Chance = 2 -- Percentage chance to obtain the rare item drop from robbing a safe.
+Config.RareItem3Amount = 1 -- Amount of the rare item player will receive if chance is triggered
+
+
+------------------------
+--SAFE (ALCOHOL STORE)--
+------------------------
+Config.AlcoholminSafeEarn = 9000 -- Minimum amount earnt from stealing from a safe (in dirtymoney)
+Config.AlcoholmaxSafeEarn = 27000 -- Maximum amount earnt from stealing from a safe (in dirtymoney)
+Config.AlcoholSafeTime = 25 -- Time it takes for player to rob safe (in seconds)
+Config.AlcoholStressForFailing = 10 -- Amount of stress a player incurs for failing to breach a safe
+
+--RARE DROPS (In addition to dirtymoney)
+--Rare item 1
+Config.AlcoholRareItem1 = "rolex" -- Name of the rare item that will drop
+Config.AlcoholRareItem1Chance = 20 -- Percentage chance to obtain the rare item drop from robbing a safe.
+Config.AlcoholRareItemAmount = 2 -- Amount of the rare item player will receive if chance is triggered
+--Rare item 2 (Note: chance for drop is independent for each rare item listed)
+Config.AlcoholRareItem2 = "goldbar" -- Name of the rare item that will drop
+Config.AlcoholRareItem2Chance = 10 -- Percentage chance to obtain the rare item drop from robbing a safe.
+Config.AlcoholRareItem2Amount = 1 -- Amount of the rare item player will receive if chance is triggered
+--Rare item 3 (Note: chance for drop is independent for each rare item listed)
+Config.AlcoholRareItem3 = "weapon_pistol" -- Name of the rare item that will drop
+Config.AlcoholRareItem3Chance = 2 -- Percentage chance to obtain the rare item drop from robbing a safe.
+Config.AlcoholRareItem3Amount = 1 -- Amount of the rare item player will receive if chance is triggered
+
 Config.Safes = {
     [1] = {vector4(-43.43, -1748.3, 29.42,  52.5), type = "keypad", robbed = false, camId = 4},
     [2] = {vector4(-1478.94, -375.5, 39.16,  229.5), type = "padlock", robbed = false, camId = 5},
@@ -70,3 +127,20 @@ Config.MaleNoHandshoes = {
 Config.FemaleNoHandshoes = {
     [0] = true, [1] = true, [2] = true, [3] = true, [4] = true, [5] = true, [6] = true, [7] = true, [8] = true, [9] = true, [10] = true, [11] = true, [12] = true, [13] = true, [14] = true, [15] = true, [19] = true, [59] = true, [60] = true, [61] = true, [62] = true, [63] = true, [64] = true, [65] = true, [66] = true, [67] = true, [68] = true, [69] = true, [70] = true, [71] = true, [129] = true, [130] = true, [131] = true, [135] = true, [142] = true, [149] = true, [153] = true, [157] = true, [161] = true, [165] = true,
 }
+
+--Doors
+Config.UnlockParses = 1 -- Number of parses of qb-lock when unlocking a liquor store door
+Config.UnlockParseTime = 11 --Time given per pass, the lower, the more difficult (below 10 is crazy)
+Config.BreakChance = 50 -- Percentage chance to break liquorkey upon failing skill check
+Config.TripLocks = math.random(4, 8) -- Number of seconds to trip locks at the end of the robbery
+
+Config.LiquorOuter1 = 'Liquorstore-door1-outer'
+Config.LiquorInner1 = 'Liquorstore-door1-inner'
+Config.LiquorOuter2 = 'Liquorstore-door2-outer'
+Config.LiquorInner2 = 'Liquorstore-door2-inner'
+Config.LiquorOuter3 = 'Liquorstore-door3-outer'
+Config.LiquorInner3 = 'Liquorstore-door3-inner'
+Config.LiquorOuter4 = 'Liquorstore-door4-outer'
+Config.LiquorInner4 = 'Liquorstore-door4-inner'
+Config.LiquorOuter5 = 'Liquorstore-door5-outer'
+Config.LiquorInner5 = 'Liquorstore-door5-inner'
