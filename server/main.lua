@@ -42,38 +42,52 @@ RegisterNetEvent('qb-storerobbery:server:takeMoney', function(register, isDone)
     end
     local playerPed = GetPlayerPed(src)
     local playerCoords = GetEntityCoords(playerPed)
-    if #(playerCoords - Config.Registers[register][1].xyz) > 3.0 or (not Config.Registers[register].robbed and not isDone) or (Config.Registers[register].time <= 0 and not isDone) then
-        return DropPlayer(src, "Attempted exploit abuse")
-    end
+    -- if #(playerCoords - Config.Registers[register][1].xyz) > 3.0 or (not Config.Registers[register].robbed and not isDone) or (Config.Registers[register].time <= 0 and not isDone) then
+    --     return DropPlayer(src, "Attempted exploit abuse")
+    -- end
     -- Add any additional code you want above this comment to do whilst robbing a register, everything above the if statement under this will be triggered every 2 seconds when a register is getting robbed.
     if isDone then
-        local amount = math.random(Config.minRegisterEarn, Config.maxRegisterEarn)
-        Player.Functions.AddItem('dirtymoney', amount, false)
-        TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['dirtymoney'], "add", amount)
-        if Config.NotifyType == 'qb' then
-            TriggerClientEvent('QBCore:Notify', src, "You stole $" ..amount.. " from the till!", 'success')
-        elseif Config.NotifyType == "okok" then
-            TriggerClientEvent('okokNotify:Alert', source, "RAIDED THE TILL", "You stole $" ..amount.. " from the till!", 4500, 'success')
+        if Config.CashRegisterReturn == "dirtymoney" then 
+            local amount = math.random(Config.minRegisterEarn, Config.maxRegisterEarn)
+            Player.Functions.AddItem('dirtymoney', amount, false)
+            TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['dirtymoney'], "add", amount)
+            if Config.NotifyType == 'qb' then
+                TriggerClientEvent('QBCore:Notify', src, "You stole $" ..amount.. " from the till!", 'success')
+            elseif Config.NotifyType == "okok" then
+                TriggerClientEvent('okokNotify:Alert', source, "RAIDED THE TILL", "You stole $" ..amount.. " from the till!", 4500, 'success')
+            end
+            Wait(1500)
+            if math.random(1, 100) <= Config.liquorKey then 
+                Player.Functions.AddItem('liquorkey', 1, false)
+                TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['liquorkey'], "add", 1)
+            end
+        elseif Config.CashRegisterReturn == "markedbills" then 
+            local info = {
+                worth = math.random(Config.minRegisterEarn, Config.maxRegisterEarn)
+            }
+            Player.Functions.AddItem('markedbills', 1, false, info)
+			TriggerClientEvent('inventory:client:ItemBox', source, QBCore.Shared.Items['markedbills'], "add")
+            if Config.NotifyType == 'qb' then
+                TriggerClientEvent('QBCore:Notify', src, "You stole $" ..info.worth.. " from the till!", 'success')
+            elseif Config.NotifyType == "okok" then
+                TriggerClientEvent('okokNotify:Alert', source, "RAIDED THE TILL", "You stole $" ..info.worth.. " from the till!", 4500, 'success')
+            end
+            Wait(1500)
+            if math.random(1, 100) <= Config.liquorKey then 
+                Player.Functions.AddItem('liquorkey', 1, false)
+                TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['liquorkey'], "add", 1)
+            end
+        elseif Config.CashRegisterReturn == "cash" then 
+            local cleanmoney = math.random(Config.minRegisterEarn, Config.maxRegisterEarn)
+            Player.Functions.AddMoney('cash', cleanmoney)
+            if Config.NotifyType == 'qb' then
+                TriggerClientEvent('QBCore:Notify', src, "You stole $" ..cleanmoney.. " from the till!", 'success')
+            elseif Config.NotifyType == "okok" then
+                TriggerClientEvent('okokNotify:Alert', source, "RAIDED THE TILL", "You stole $" ..cleanmoney.. " from the till!", 4500, 'success')
+            end
+        else 
+            print("You have not properly configured 'Config.CashRegisterReturn', please refer to config.lua")
         end
-        Wait(1500)
-        if math.random(1, 100) <= Config.liquorKey then 
-            Player.Functions.AddItem('liquorkey', 1, false)
-            TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['liquorkey'], "add", 1)
-        end
-        -- if math.random(1, 100) <= 10 then
-        --     local code = SafeCodes[Config.Registers[register].safeKey]
-        --     if Config.Safes[Config.Registers[register].safeKey].type == "keypad" then
-        --         info = {
-        --             label = "Safe Code: "..tostring(code)
-        --         }
-        --     else
-        --         info = {
-        --             label = "Safe Code: "..tostring(math.floor((code[1] % 360) / 3.60)).."-"..tostring(math.floor((code[2] % 360) / 3.60)).."-"..tostring(math.floor((code[3] % 360) / 3.60)).."-"..tostring(math.floor((code[4] % 360) / 3.60)).."-"..tostring(math.floor((code[5] % 360) / 3.60))
-        --         }
-        --     end
-        --     Player.Functions.AddItem("stickynote", 1, false, info)
-        --     TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items["stickynote"], "add")
-        -- end
     end
 end)
 
@@ -98,33 +112,86 @@ RegisterNetEvent('qb-storerobbery:server:SafeReward', function(safe)
     if not Player then 
         return 
     end
-    local playerPed = GetPlayerPed(src)
-    local playerCoords = GetEntityCoords(playerPed)
+    -- local playerPed = GetPlayerPed(src)
+    -- local playerCoords = GetEntityCoords(playerPed)
     -- if #(playerCoords - Config.Safes[safe][1].xyz) > 5.0 or Config.Safes[safe].robbed then
     --     return DropPlayer(src, "Attempted exploit abuse")
     -- end
-	local amount = math.random(Config.minSafeEarn, Config.maxSafeEarn)
-	Player.Functions.AddItem('dirtymoney', amount, false)
-	TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['dirtymoney'], "add")
-    if Config.NotifyType == 'qb' then
-        TriggerClientEvent('QBCore:Notify', src, "You stole $" ..amount.. " from the safe!", 'success', 4500)
-    elseif Config.NotifyType == "okok" then
-        TriggerClientEvent('okokNotify:Alert', source, "RAIDED THE SAFE", "You stole $" ..amount.. " from the safe!", 4500, 'success')
-    end
-    Wait(1500)
-    if math.random(1, 100) <= Config.RareItem1Chance then 
-        Player.Functions.AddItem(Config.RareItem1, Config.RareItemAmount, false)
-        TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.RareItem1], "add", Config.RareItemAmount)
-    end
-    Wait(1500)
-    if math.random(1, 100) <= Config.RareItem2Chance then 
-        Player.Functions.AddItem(Config.RareItem2, Config.RareItem2Amount, false)
-        TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.RareItem2], "add", Config.RareItem2Amount)
-    end
-    Wait(1500)
-    if math.random(1, 100) <= Config.RareItem3Chance then 
-        Player.Functions.AddItem(Config.RareItem3, Config.RareItem3Amount, false)
-        TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.RareItem3], "add", Config.RareItem3Amount)
+    if Config.SafeReturn == "dirtymoney" then 
+        local amount = math.random(Config.minSafeEarn, Config.maxSafeEarn)
+        Player.Functions.AddItem('dirtymoney', amount, false)
+        TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['dirtymoney'], "add")
+        if Config.NotifyType == 'qb' then
+            TriggerClientEvent('QBCore:Notify', src, "You stole $" ..amount.. " from the safe!", 'success', 4500)
+        elseif Config.NotifyType == "okok" then
+            TriggerClientEvent('okokNotify:Alert', source, "RAIDED THE SAFE", "You stole $" ..amount.. " from the safe!", 4500, 'success')
+        end
+        Wait(1000)
+        if math.random(1, 100) <= Config.RareItem1Chance then 
+            Player.Functions.AddItem(Config.RareItem1, Config.RareItemAmount, false)
+            TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.RareItem1], "add", Config.RareItemAmount)
+        end
+        Wait(1000)
+        if math.random(1, 100) <= Config.RareItem2Chance then 
+            Player.Functions.AddItem(Config.RareItem2, Config.RareItem2Amount, false)
+            TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.RareItem2], "add", Config.RareItem2Amount)
+        end
+        Wait(1000)
+        if math.random(1, 100) <= Config.RareItem3Chance then 
+            Player.Functions.AddItem(Config.RareItem3, Config.RareItem3Amount, false)
+            TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.RareItem3], "add", Config.RareItem3Amount)
+        end
+    elseif Config.SafeReturn == "markedbills" then
+        local info = {
+            worth = math.random(Config.minSafeEarn, Config.maxSafeEarn)
+        }
+        Player.Functions.AddItem('markedbills', 1, false, info)
+        TriggerClientEvent('inventory:client:ItemBox', source, QBCore.Shared.Items['markedbills'], "add")
+        if Config.NotifyType == 'qb' then
+            TriggerClientEvent('QBCore:Notify', src, "You stole $" ..info.worth.. " from the safe!", 'success', 4500)
+        elseif Config.NotifyType == "okok" then
+            TriggerClientEvent('okokNotify:Alert', source, "RAIDED THE SAFE", "You stole $" ..info.worth.. " from the safe!", 4500, 'success')
+        end
+        Wait(1000)
+        if math.random(1, 100) <= Config.RareItem1Chance then 
+            Player.Functions.AddItem(Config.RareItem1, Config.RareItemAmount, false)
+            TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.RareItem1], "add", Config.RareItemAmount)
+        end
+        Wait(1000)
+        if math.random(1, 100) <= Config.RareItem2Chance then 
+            Player.Functions.AddItem(Config.RareItem2, Config.RareItem2Amount, false)
+            TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.RareItem2], "add", Config.RareItem2Amount)
+        end
+        Wait(1000)
+        if math.random(1, 100) <= Config.RareItem3Chance then 
+            Player.Functions.AddItem(Config.RareItem3, Config.RareItem3Amount, false)
+            TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.RareItem3], "add", Config.RareItem3Amount)
+        end
+    elseif Config.SafeReturn == "cash" then
+        local cleanmoney = math.random(Config.minSafeEarn, Config.maxSafeEarn)
+        Player.Functions.AddMoney('cash', cleanmoney)
+        if Config.NotifyType == 'qb' then
+            TriggerClientEvent('QBCore:Notify', src, "You stole $" ..cleanmoney.. " from the safe!", 'success')
+        elseif Config.NotifyType == "okok" then
+            TriggerClientEvent('okokNotify:Alert', source, "RAIDED THE TILL", "You stole $" ..cleanmoney.. " from the safe!", 4500, 'success')
+        end
+        Wait(1000)
+        if math.random(1, 100) <= Config.RareItem1Chance then 
+            Player.Functions.AddItem(Config.RareItem1, Config.RareItemAmount, false)
+            TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.RareItem1], "add", Config.RareItemAmount)
+        end
+        Wait(1000)
+        if math.random(1, 100) <= Config.RareItem2Chance then 
+            Player.Functions.AddItem(Config.RareItem2, Config.RareItem2Amount, false)
+            TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.RareItem2], "add", Config.RareItem2Amount)
+        end
+        Wait(1000)
+        if math.random(1, 100) <= Config.RareItem3Chance then 
+            Player.Functions.AddItem(Config.RareItem3, Config.RareItem3Amount, false)
+            TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.RareItem3], "add", Config.RareItem3Amount)
+        end 
+    else
+        print("You have not properly configured 'Config.SafeReturn', please refer to config.lua")
     end
 end)
 
@@ -134,33 +201,86 @@ RegisterNetEvent('qb-storerobbery:server:SafeRewardAlcohol', function(safe)
     if not Player then 
         return 
     end
-    local playerPed = GetPlayerPed(src)
-    local playerCoords = GetEntityCoords(playerPed)
+    -- local playerPed = GetPlayerPed(src)
+    -- local playerCoords = GetEntityCoords(playerPed)
     -- if #(playerCoords - Config.Safes[safe][1].xyz) > 5.0 or Config.Safes[safe].robbed then
     --     return DropPlayer(src, "Attempted exploit abuse")
     -- end
-	local amount = math.random(Config.AlcoholminSafeEarn, Config.AlcoholmaxSafeEarn)
-	Player.Functions.AddItem('dirtymoney', amount, false)
-	TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['dirtymoney'], "add")
-    if Config.NotifyType == 'qb' then
-        TriggerClientEvent('QBCore:Notify', src, "You stole $" ..amount.. " from the safe!", 'success', 4500)
-    elseif Config.NotifyType == "okok" then
-        TriggerClientEvent('okokNotify:Alert', source, "RAIDED THE SAFE", "You stole $" ..amount.. " from the safe!", 4500, 'success')
-    end
-    Wait(1500)
-    if math.random(1, 100) <= Config.AlcoholRareItem1Chance then 
-        Player.Functions.AddItem(Config.AlcoholRareItem1, Config.AlcoholRareItemAmount, false)
-        TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.AlcoholRareItem1], "add", Config.AlcoholRareItemAmount)
-    end
-    Wait(1500)
-    if math.random(1, 100) <= Config.AlcoholRareItem2Chance then 
-        Player.Functions.AddItem(Config.AlcoholRareItem2, Config.AlcoholRareItem2Amount, false)
-        TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.AlcoholRareItem2], "add", Config.AlcoholRareItem2Amount)
-    end
-    Wait(1500)
-    if math.random(1, 100) <= Config.AlcoholRareItem3Chance then 
-        Player.Functions.AddItem(Config.AlcoholRareItem3, Config.AlcoholRareItem3Amount, false)
-        TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.AlcoholRareItem3], "add", Config.AlcoholRareItem3Amount)
+    if Config.AlcoholReturn == "dirtymoney" then 
+        local amount = math.random(Config.AlcoholminSafeEarn, Config.AlcoholmaxSafeEarn)
+        Player.Functions.AddItem('dirtymoney', amount, false)
+        TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['dirtymoney'], "add")
+        if Config.NotifyType == 'qb' then
+            TriggerClientEvent('QBCore:Notify', src, "You stole $" ..amount.. " from the safe!", 'success', 4500)
+        elseif Config.NotifyType == "okok" then
+            TriggerClientEvent('okokNotify:Alert', source, "RAIDED THE SAFE", "You stole $" ..amount.. " from the safe!", 4500, 'success')
+        end
+        Wait(1500)
+        if math.random(1, 100) <= Config.AlcoholRareItem1Chance then 
+            Player.Functions.AddItem(Config.AlcoholRareItem1, Config.AlcoholRareItemAmount, false)
+            TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.AlcoholRareItem1], "add", Config.AlcoholRareItemAmount)
+        end
+        Wait(1500)
+        if math.random(1, 100) <= Config.AlcoholRareItem2Chance then 
+            Player.Functions.AddItem(Config.AlcoholRareItem2, Config.AlcoholRareItem2Amount, false)
+            TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.AlcoholRareItem2], "add", Config.AlcoholRareItem2Amount)
+        end
+        Wait(1500)
+        if math.random(1, 100) <= Config.AlcoholRareItem3Chance then 
+            Player.Functions.AddItem(Config.AlcoholRareItem3, Config.AlcoholRareItem3Amount, false)
+            TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.AlcoholRareItem3], "add", Config.AlcoholRareItem3Amount)
+        end
+    elseif Config.AlcoholReturn == "markedbills" then 
+        local info = {
+            worth = math.random(Config.AlcoholminSafeEarn, Config.AlcoholmaxSafeEarn)
+        }
+        Player.Functions.AddItem('markedbills', 1, false, info)
+        TriggerClientEvent('inventory:client:ItemBox', source, QBCore.Shared.Items['markedbills'], "add")
+        if Config.NotifyType == 'qb' then
+            TriggerClientEvent('QBCore:Notify', src, "You stole $" ..info.worth.. " from the safe!", 'success', 4500)
+        elseif Config.NotifyType == "okok" then
+            TriggerClientEvent('okokNotify:Alert', source, "RAIDED THE SAFE", "You stole $" ..info.worth.. " from the safe!", 4500, 'success')
+        end
+        Wait(1000)
+        if math.random(1, 100) <= Config.AlcoholRareItem1Chance then 
+            Player.Functions.AddItem(Config.AlcoholRareItem1, Config.AlcoholRareItemAmount, false)
+            TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.AlcoholRareItem1], "add", Config.AlcoholRareItemAmount)
+        end
+        Wait(1500)
+        if math.random(1, 100) <= Config.AlcoholRareItem2Chance then 
+            Player.Functions.AddItem(Config.AlcoholRareItem2, Config.AlcoholRareItem2Amount, false)
+            TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.AlcoholRareItem2], "add", Config.AlcoholRareItem2Amount)
+        end
+        Wait(1500)
+        if math.random(1, 100) <= Config.AlcoholRareItem3Chance then 
+            Player.Functions.AddItem(Config.AlcoholRareItem3, Config.AlcoholRareItem3Amount, false)
+            TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.AlcoholRareItem3], "add", Config.AlcoholRareItem3Amount)
+        end
+    elseif Config.AlcoholReturn == "cash" then 
+        local cleanmoney = math.random(Config.AlcoholminSafeEarn, Config.AlcoholmaxSafeEarn)
+        Player.Functions.AddMoney('cash', cleanmoney)
+        if Config.NotifyType == 'qb' then
+            TriggerClientEvent('QBCore:Notify', src, "You stole $" ..cleanmoney.. " from the safe!", 'success')
+        elseif Config.NotifyType == "okok" then
+            TriggerClientEvent('okokNotify:Alert', source, "RAIDED THE TILL", "You stole $" ..cleanmoney.. " from the safe!", 4500, 'success')
+        end
+        Wait(1000)
+        if math.random(1, 100) <= Config.AlcoholRareItem1Chance then 
+            Player.Functions.AddItem(Config.AlcoholRareItem1, Config.AlcoholRareItemAmount, false)
+            TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.AlcoholRareItem1], "add", Config.AlcoholRareItemAmount)
+        end
+        Wait(1500)
+        if math.random(1, 100) <= Config.AlcoholRareItem2Chance then 
+            Player.Functions.AddItem(Config.AlcoholRareItem2, Config.AlcoholRareItem2Amount, false)
+            TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.AlcoholRareItem2], "add", Config.AlcoholRareItem2Amount)
+        end
+        Wait(1500)
+        if math.random(1, 100) <= Config.AlcoholRareItem3Chance then 
+            Player.Functions.AddItem(Config.AlcoholRareItem3, Config.AlcoholRareItem3Amount, false)
+            TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.AlcoholRareItem3], "add", Config.AlcoholRareItem3Amount)
+        end
+    else
+        print("You have not properly configured 'Config.AlcoholReturn', please refer to config.lua")
     end
 end)
 
@@ -214,7 +334,6 @@ CreateThread(function()
             end
         end
         if #toSend > 0 then
-            --The false on the end of this is redundant
             TriggerClientEvent('qb-storerobbery:client:setRegisterStatus', -1, toSend, false)
         end
         Wait(Config.tickInterval)
@@ -231,16 +350,6 @@ end)
 
 QBCore.Functions.CreateCallback('qb-storerobbery:server:getSafeStatus', function(_, cb)
     cb(Config.Safes)
-end)
-
-QBCore.Functions.CreateCallback('qb-storerobbery:server:HasClearance', function(source, cb)
-    local Player = QBCore.Functions.GetPlayer(source)
-    local Item = Player.Functions.GetItemByName("liquorkey")
-    if Item ~= nil then
-        cb(true)
-    else
-        cb(false)
-    end
 end)
 
 RegisterServerEvent('qb-storerobbery:server:KeyRemoval')

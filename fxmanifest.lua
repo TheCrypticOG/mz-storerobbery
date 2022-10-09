@@ -1,8 +1,9 @@
 fx_version 'cerulean'
 game 'gta5'
 
-description 'QB-StoreRobbery'
-version '1.0.0'
+description 'mz-storerobbery - Mr_Zain#4139 changes to qb-storerobbery (with or without mz-skills integration)'
+
+version '1.1.0'
 
 ui_page 'html/index.html'
 

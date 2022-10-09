@@ -1,22 +1,48 @@
 Config = {}
 
-Config.NotifyType = 'okok' -- Notification type (use 'qbcore' if you do not know what this is)
+-------------------
+--MZ-STOREROBBERY--
+-------------------
 
-Config.UsingSkills = 'yes' -- Set to 'yes' if using mz-skills, otherwise set to 'no'
+Config.NotifyType = 'okok'                      -- Notification type (set to 'qbcore' to use qb-core standard notifications.)
 
-Config.MinimumStoreRobberyPolice = 0
-Config.resetTime = (60 * 1000) * 30
-Config.tickInterval = 1000
+Config.UsingSkills = true                       -- Set to 'false' if you do not wish to use this resource with mz-skills
+--if "Config.UsingSkills = true", then the following parameters apply: 
+Config.HackingXPLow = 8                         -- Lowest amount of "Hacking" XP added upon successful hack.
+Config.HackingXPMid = 11                        -- Mid level "Hacking" XP added upon successful hack.
+Config.HackingXPHigh = 14                       -- Highest amount of "Hacking" XP added upon successful hack.
+Config.HackingXPLoss = 10                       -- "Hacking" XP lost for failing any hack.
 
---CASH REGISTERS
-Config.minRegisterEarn = 2000 -- Minimum amount earnt from stealing from a cash register (in dirtymoney)
-Config.maxRegisterEarn = 5000 -- Maximum amount earnt from stealing from a cash register (in dirtymoney)
-Config.RegisterTime = 25 -- Time it takes for player to rob cash register after lockpicking (in seconds)
+Config.MinimumStoreRobberyPolice = 0            -- Minimum police that need to be on duty before a store can be robbed.
+
+Config.resetTime = (60 * 1000) * 30             -- Changing the last number will change the number of minutes for the robbery to reset (for each register and each safe)
+
+Config.tickInterval = 1000                      -- No need to change this. 
+
+------------------
+--CASH REGISTERS--
+------------------
+
+Config.LockpickBreak = 75                       -- Percentage chance of lockpick breaking upon player failing to lockpick cash register.
+Config.AdvLockpickBreak = 25                    -- Percentage chance of advanced lockpick breaking upon player failing to lockpick cash register.
+
+-- Mini-game to steal from till
+Config.BreakRegister = "circle"                 -- "standard" uses the qb-lockpick, "circle" uses the ps-ui minigame.
+-- if "Config.BreakRegister" = "circle", then the following parameters apply: 
+Config.circleparses = 7                         -- number of circle parses a player will need to complete
+Config.circletime = 13                          -- time for player to complete one parse of the circle
+
+-- Reward type:
+Config.CashRegisterReturn = "markedbills"       -- Set to "dirtymoney", "markedbills" or "cash" to alter the reward given.
+Config.minRegisterEarn = 2000                   -- Minimum amount earnt from stealing from a cash register
+Config.maxRegisterEarn = 5000                   -- Maximum amount earnt from stealing from a cash register
+
+Config.RegisterTime = 25                        -- Time it takes for player to rob cash register after lockpicking (in seconds)
 
 --Chance to drop liquor key
-Config.liquorKey = 35 -- Percentage chance to find a key to the liquor storeroom
+Config.liquorKey = 35                           -- Percentage chance to find a key to the liquor storeroom
 
-Config.Registers = {
+Config.Registers = {                            -- There is no need to change these
     [1] = {vector3(-47.24,-1757.65, 29.53), robbed = false, time = 0, safeKey = 1, camId = 4},
     [2] = {vector3(-48.58,-1759.21, 29.59), robbed = false, time = 0, safeKey = 1, camId = 4},
     [3] = {vector3(-1486.26,-378.0,  40.16), robbed = false, time = 0, safeKey = 2, camId = 5},
@@ -54,55 +80,61 @@ Config.Registers = {
 ----------------------------
 --SAFE (CONVENIENCE STORE)--
 ----------------------------
-Config.minSafeEarn = 7000 -- Minimum amount earnt from stealing from a safe (in dirtymoney)
-Config.maxSafeEarn = 22000 -- Maximum amount earnt from stealing from a safe (in dirtymoney)
-Config.SafeTime = 25 -- Time it takes for player to rob safe (in seconds)
-Config.StressForFailing = 10 -- Amount of stress a player incurs for failing to breach a safe
+Config.SafeReturn = "markedbills"               -- Set to "dirtymoney", "markedbills" or "cash" to alter the reward given.
 
---HACK TYPE (Choose the type of hack for convenience store safes from: 'varHack', 'maze', 'numberMatch', 'numberMaze', 'scrambler' (all configured to work with or without mz-skills))
-Config.Hacktype = 'scrambler'
+Config.minSafeEarn = 7000                       -- Minimum amount earnt from stealing from a safe (in dirtymoney)
+Config.maxSafeEarn = 22000                      -- Maximum amount earnt from stealing from a safe (in dirtymoney)
+Config.SafeTimelow = 45                         -- Lowest time (in seconds) that it will take a player to raid the safe.
+Config.SafeTimehigh = 75                        -- Highest time (in seconds) that it will take a player to raid the safe.
+Config.StressForFailing = 10                    -- Amount of stress a player incurs for failing to breach a safe
+
+-- SAFE HACK TYPE 
+-- (Choose the type of hack for convenience store safes from: 'varHack', 'maze', 'numberMatch', 'numberMaze', 'scrambler' (all configured to work with or without mz-skills))
+-- Please note, all hacks except "numberMatch" depend on ps-ui. "numberMatch" depends on mhacking. Ensure those resourecs are up to date. 
+Config.Hacktype = 'numberMatch'
 
 --RARE DROPS (In addition to dirtymoney)
 --Rare item 1
-Config.RareItem1 = "rolex" -- Name of the rare item that will drop
-Config.RareItem1Chance = 20 -- Percentage chance to obtain the rare item drop from robbing a safe.
-Config.RareItemAmount = 2 -- Amount of the rare item player will receive if chance is triggered
+Config.RareItem1 = "rolex"                      -- Name of the rare item that will drop
+Config.RareItem1Chance = 20                     -- Percentage chance to obtain the rare item drop from robbing a safe.
+Config.RareItemAmount = 2                       -- Amount of the rare item player will receive if chance is triggered
 --Rare item 2 (Note: chance for drop is independent for each rare item listed)
-Config.RareItem2 = "goldbar" -- Name of the rare item that will drop
-Config.RareItem2Chance = 10 -- Percentage chance to obtain the rare item drop from robbing a safe.
-Config.RareItem2Amount = 1 -- Amount of the rare item player will receive if chance is triggered
+Config.RareItem2 = "goldbar"                    -- Name of the rare item that will drop
+Config.RareItem2Chance = 10                     -- Percentage chance to obtain the rare item drop from robbing a safe.
+Config.RareItem2Amount = 1                      -- Amount of the rare item player will receive if chance is triggered
 --Rare item 3 (Note: chance for drop is independent for each rare item listed)
-Config.RareItem3 = "weapon_pistol" -- Name of the rare item that will drop
-Config.RareItem3Chance = 2 -- Percentage chance to obtain the rare item drop from robbing a safe.
-Config.RareItem3Amount = 1 -- Amount of the rare item player will receive if chance is triggered
-
+Config.RareItem3 = "weapon_pistol"              -- Name of the rare item that will drop
+Config.RareItem3Chance = 2                      -- Percentage chance to obtain the rare item drop from robbing a safe.
+Config.RareItem3Amount = 1                      -- Amount of the rare item player will receive if chance is triggered
 
 ------------------------
 --SAFE (ALCOHOL STORE)--
 ------------------------
-Config.AlcoholminSafeEarn = 9000 -- Minimum amount earnt from stealing from a safe (in dirtymoney)
-Config.AlcoholmaxSafeEarn = 27000 -- Maximum amount earnt from stealing from a safe (in dirtymoney)
-Config.AlcoholSafeTime = 25 -- Time it takes for player to rob safe (in seconds)
-Config.AlcoholStressForFailing = 10 -- Amount of stress a player incurs for failing to breach a safe
+Config.AlcoholReturn = "dirtymoney"             -- Set to "dirtymoney", "markedbills" or "cash" to alter the reward given.
+
+Config.AlcoholminSafeEarn = 9000                -- Minimum amount earnt from stealing from a safe (in dirtymoney)
+Config.AlcoholmaxSafeEarn = 27000               -- Maximum amount earnt from stealing from a safe (in dirtymoney)
+Config.AlcoholSafeTime = 25                     -- Time it takes for player to rob safe (in seconds)
+Config.AlcoholStressForFailing = 10             -- Amount of stress a player incurs for failing to breach a safe
 
 --RARE DROPS (In addition to dirtymoney)
 --Rare item 1
-Config.AlcoholRareItem1 = "rolex" -- Name of the rare item that will drop
-Config.AlcoholRareItem1Chance = 20 -- Percentage chance to obtain the rare item drop from robbing a safe.
-Config.AlcoholRareItemAmount = 2 -- Amount of the rare item player will receive if chance is triggered
+Config.AlcoholRareItem1 = "rolex"               -- Name of the rare item that will drop
+Config.AlcoholRareItem1Chance = 20              -- Percentage chance to obtain the rare item drop from robbing a safe.
+Config.AlcoholRareItemAmount = 2                -- Amount of the rare item player will receive if chance is triggered
 --Rare item 2 (Note: chance for drop is independent for each rare item listed)
-Config.AlcoholRareItem2 = "goldbar" -- Name of the rare item that will drop
-Config.AlcoholRareItem2Chance = 10 -- Percentage chance to obtain the rare item drop from robbing a safe.
-Config.AlcoholRareItem2Amount = 1 -- Amount of the rare item player will receive if chance is triggered
+Config.AlcoholRareItem2 = "goldbar"             -- Name of the rare item that will drop
+Config.AlcoholRareItem2Chance = 10              -- Percentage chance to obtain the rare item drop from robbing a safe.
+Config.AlcoholRareItem2Amount = 1               -- Amount of the rare item player will receive if chance is triggered
 --Rare item 3 (Note: chance for drop is independent for each rare item listed)
-Config.AlcoholRareItem3 = "weapon_pistol" -- Name of the rare item that will drop
-Config.AlcoholRareItem3Chance = 2 -- Percentage chance to obtain the rare item drop from robbing a safe.
-Config.AlcoholRareItem3Amount = 1 -- Amount of the rare item player will receive if chance is triggered
+Config.AlcoholRareItem3 = "weapon_pistol"       -- Name of the rare item that will drop
+Config.AlcoholRareItem3Chance = 2               -- Percentage chance to obtain the rare item drop from robbing a safe.
+Config.AlcoholRareItem3Amount = 1               -- Amount of the rare item player will receive if chance is triggered
 
-Config.Safes = {
-    [1] = {vector4(-43.43, -1748.3, 29.42,  52.5), type = "keypad", robbed = false, camId = 4},
-    [2] = {vector4(-1478.94, -375.5, 39.16,  229.5), type = "padlock", robbed = false, camId = 5},
-    [3] = {vector4(-1220.85, -916.05, 11.32,  229.5), type = "padlock", robbed = false, camId = 6},
+Config.Safes = {                                -- There is no need to change these
+    [1] = {vector4(-43.43, -1748.3, 29.42, 52.5), type = "keypad", robbed = false, camId = 4},
+    [2] = {vector4(-1478.94, -375.5, 39.16, 229.5), type = "padlock", robbed = false, camId = 5},
+    [3] = {vector4(-1220.85, -916.05, 11.32, 229.5), type = "padlock", robbed = false, camId = 6},
     [4] = {vector4(-709.74, -904.15, 19.21, 229.5), type = "keypad", robbed = false, camId = 7},
     [5] = {vector3(28.21, -1339.14, 29.49), type = "keypad", robbed = false, camId = 8},
     [6] = {vector3(1126.77, -980.1, 45.41), type = "padlock", robbed = false, camId = 9},
@@ -129,11 +161,13 @@ Config.FemaleNoHandshoes = {
 }
 
 --Doors
-Config.UnlockParses = 1 -- Number of parses of qb-lock when unlocking a liquor store door
-Config.UnlockParseTime = 11 --Time given per pass, the lower, the more difficult (below 10 is crazy)
-Config.BreakChance = 50 -- Percentage chance to break liquorkey upon failing skill check
-Config.TripLocks = math.random(4, 8) -- Number of seconds to trip locks at the end of the robbery
+Config.UnlockParses = 1                             -- Number of parses of qb-lock when unlocking a liquor store door
+Config.UnlockParseTime = 11                         -- Time given per pass, the lower, the more difficult (below 10 is crazy)
+Config.BreakChance = 50                             -- Percentage chance to break liquorkey upon failing skill check
+Config.TripLocks = math.random(4, 8)                -- Number of seconds to trip locks at the end of the robbery
 
+-- No need to change these door names, 
+-- Please make sure you add the "Liquorstore" doorlock config to your doorlock resource or these doors will be open by default and the functions to open the doors will be meaningless.
 Config.LiquorOuter1 = 'Liquorstore-door1-outer'
 Config.LiquorInner1 = 'Liquorstore-door1-inner'
 Config.LiquorOuter2 = 'Liquorstore-door2-outer'
