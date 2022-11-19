@@ -284,16 +284,28 @@ RegisterNetEvent('qb-storerobbery:server:SafeRewardAlcohol', function(safe)
     end
 end)
 
-RegisterServerEvent('qb-storerobbery:server:ItemRemoval')
-AddEventHandler('qb-storerobbery:server:ItemRemoval', function()
+RegisterServerEvent('qb-storerobbery:server:ItemRemoval', function()
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     Player.Functions.RemoveItem('usb2', 1)
 	TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['usb2'], "remove", 1)
 end)
 
-RegisterServerEvent('qb-storerobbery:server:SafeFail')
-AddEventHandler('qb-storerobbery:server:SafeFail', function()
+RegisterServerEvent('mz-storerobbery:server:RemoveLockpick', function()
+    local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
+    Player.Functions.RemoveItem('lockpick', 1)
+	TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['lockpick'], "remove", 1)
+end)
+
+RegisterServerEvent('mz-storerobbery:server:RemoveAdvanced', function()
+    local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
+    Player.Functions.RemoveItem('advancedlockpick', 1)
+	TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['advancedlockpick'], "remove", 1)
+end)
+
+RegisterServerEvent('qb-storerobbery:server:SafeFail', function()
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     if Config.NotifyType == 'qb' then
@@ -352,8 +364,7 @@ QBCore.Functions.CreateCallback('qb-storerobbery:server:getSafeStatus', function
     cb(Config.Safes)
 end)
 
-RegisterServerEvent('qb-storerobbery:server:KeyRemoval')
-AddEventHandler('qb-storerobbery:server:KeyRemoval', function()
+RegisterServerEvent('qb-storerobbery:server:KeyRemoval', function()
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     Player.Functions.RemoveItem('liquorkey', 1)
@@ -365,8 +376,7 @@ AddEventHandler('qb-storerobbery:server:KeyRemoval', function()
     end
 end)
 
-RegisterServerEvent('qb-storerobbery:server:KeyRemovalSuccess')
-AddEventHandler('qb-storerobbery:server:KeyRemovalSuccess', function()
+RegisterServerEvent('qb-storerobbery:server:KeyRemovalSuccess', function()
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     Player.Functions.RemoveItem('liquorkey', 1)
