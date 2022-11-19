@@ -214,20 +214,29 @@ local function lockpickFinish(success)
         --cb('ok')
     else
         if usingAdvanced then
-            if math.random(1, 100) < 20 then
-                TriggerServerEvent("QBCore:Server:RemoveItem", "advancedlockpick", 1)
-                TriggerEvent('inventory:client:ItemBox', QBCore.Shared.Items["advancedlockpick"], "remove")
+            if math.random(1, 100) <= Config.AdvancedBreakChance then
+                TriggerServerEvent('mz-storerobbery:server:RemoveAdvanced')
+                Wait(500)
+                if Config.NotifyType == 'qb' then
+                    QBCore.Functions.Notify('Your sturdy lockpick snapped! Damn!', "error", 3500)
+                elseif Config.NotifyType == "okok" then
+                    exports['okokNotify']:Alert("ADVANCED LOCKPICK SNAPPED", 'Your sturdy lockpick snapped! Damn!', 3500, "error")
+                end 
             end
         else
-            if math.random(1, 100) < 40 then
-                TriggerServerEvent("QBCore:Server:RemoveItem", "lockpick", 1)
-                TriggerEvent('inventory:client:ItemBox', QBCore.Shared.Items["lockpick"], "remove")
+            if math.random(1, 100) <= Config.LockpickBreakChance then
+                TriggerServerEvent('mz-storerobbery:server:RemoveLockpick')
+                Wait(500)
+                if Config.NotifyType == 'qb' then
+                    QBCore.Functions.Notify('Your lockpick snapped! Damn!', "error", 3500)
+                elseif Config.NotifyType == "okok" then
+                    exports['okokNotify']:Alert("LOCKPICK SNAPPED", 'Your lockpick snapped! Damn!', 3500, "error")
+                end 
             end
         end
         if (IsWearingHandshoes() and math.random(1, 100) <= 25) then
             local pos = GetEntityCoords(PlayerPedId())
             TriggerServerEvent("evidence:server:CreateFingerDrop", pos)
-            QBCore.Functions.Notify("You Broke The Lock Pick")
         end
         openLockpick(false)
         --cb('ok')
@@ -254,31 +263,31 @@ function LockpickDoorAnim(time)
     end)
 end
 
--- RegisterNUICallback('fail', function(_ ,cb)
---     if usingAdvanced then
---         if math.random(1, 100) < 20 then
---             TriggerServerEvent("QBCore:Server:RemoveItem", "advancedlockpick", 1)
---             TriggerEvent('inventory:client:ItemBox', QBCore.Shared.Items["advancedlockpick"], "remove")
---         end
---     else
---         if math.random(1, 100) < 40 then
---             TriggerServerEvent("QBCore:Server:RemoveItem", "lockpick", 1)
---             TriggerEvent('inventory:client:ItemBox', QBCore.Shared.Items["lockpick"], "remove")
---         end
---     end
---     if (IsWearingHandshoes() and math.random(1, 100) <= 25) then
---         local pos = GetEntityCoords(PlayerPedId())
---         TriggerServerEvent("evidence:server:CreateFingerDrop", pos)
---         QBCore.Functions.Notify("You Broke The Lock Pick")
---     end
---     openLockpick(false)
---     cb('ok')
--- end)
+RegisterNUICallback('fail', function(_ ,cb)
+    if usingAdvanced then
+        if math.random(1, 100) < 20 then
+            TriggerServerEvent("QBCore:Server:RemoveItem", "advancedlockpick", 1)
+            TriggerEvent('inventory:client:ItemBox', QBCore.Shared.Items["advancedlockpick"], "remove")
+        end
+    else
+        if math.random(1, 100) < 40 then
+            TriggerServerEvent("QBCore:Server:RemoveItem", "lockpick", 1)
+            TriggerEvent('inventory:client:ItemBox', QBCore.Shared.Items["lockpick"], "remove")
+        end
+    end
+    if (IsWearingHandshoes() and math.random(1, 100) <= 25) then
+        local pos = GetEntityCoords(PlayerPedId())
+        TriggerServerEvent("evidence:server:CreateFingerDrop", pos)
+        QBCore.Functions.Notify("You Broke The Lock Pick")
+    end
+    openLockpick(false)
+    cb('ok')
+end)
 
--- RegisterNUICallback('exit', function(_, cb)
---     openLockpick(false)
---     cb('ok')
--- end)
+RegisterNUICallback('exit', function(_, cb)
+    openLockpick(false)
+    cb('ok')
+end)
 
 -------------
 --LOCKPICKS--
