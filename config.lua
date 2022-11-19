@@ -23,8 +23,8 @@ Config.tickInterval = 1000                      -- No need to change this.
 --CASH REGISTERS--
 ------------------
 
-Config.LockpickBreak = 75                       -- Percentage chance of lockpick breaking upon player failing to lockpick cash register.
-Config.AdvLockpickBreak = 25                    -- Percentage chance of advanced lockpick breaking upon player failing to lockpick cash register.
+Config.LockpickBreakChance = 40                 -- Percentage chance of lockpick breaking upon player failing to lockpick cash register.
+Config.AdvancedBreakChance = 20                 -- Percentage chance of advanced lockpick breaking upon player failing to lockpick cash register.
 
 -- Mini-game to steal from till
 Config.BreakRegister = "circle"                 -- "standard" uses the qb-lockpick, "circle" uses the ps-ui minigame.
