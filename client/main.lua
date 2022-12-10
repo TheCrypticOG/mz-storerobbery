@@ -122,7 +122,7 @@ RegisterNetEvent('qb-storerobbery:client:circleLockpick', function()
             end 
             Wait(2000)
             if usingAdvanced then
-                if math.random(1, 100) <= Config.AdvLockpickBreak then
+                if math.random(1, 100) <= Config.AdvancedBreakChance then
                     TriggerServerEvent("QBCore:Server:RemoveItem", "advancedlockpick", 1)
                     TriggerEvent('inventory:client:ItemBox', QBCore.Shared.Items["advancedlockpick"], "remove")
                     if Config.NotifyType == 'qb' then
@@ -132,7 +132,7 @@ RegisterNetEvent('qb-storerobbery:client:circleLockpick', function()
                     end 
                 end
             else
-                if math.random(1, 100) <= Config.LockpickBreak then
+                if math.random(1, 100) <= Config.LockpickBreakChance then
                     TriggerServerEvent("QBCore:Server:RemoveItem", "lockpick", 1)
                     TriggerEvent('inventory:client:ItemBox', QBCore.Shared.Items["lockpick"], "remove")
                     if Config.NotifyType == 'qb' then
