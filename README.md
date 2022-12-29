@@ -60,3 +60,4 @@ If using lj-inventory, add the images to: lj-inventory/html/images/ - if you are
 
 Please restart your server ensuring that mz-storerobbery is ensured/starts after qb-core starts (ideally it should just form part of your [qb] folder).
 
+7. Big thanks to Savage#2092 for configuring mz-storerobbery with the gabz MLO coordinates. If you experience errors, please do not annoy either of us as I am not offering supporting for MLO location changes - it's very easy to change vector coordinates in the config file.
