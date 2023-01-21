@@ -6,6 +6,8 @@ Config = {}
 
 Config.NotifyType = 'okok'                      -- Notification type (set to 'qbcore' to use qb-core standard notifications.)
 
+Config.psdispatch = true                        -- set to "false" if you are not using ps-dispatch alerts (if "false", base qb-core alerts will trigger).
+
 Config.UsingSkills = true                       -- Set to 'false' if you do not wish to use this resource with mz-skills
 --if "Config.UsingSkills = true", then the following parameters apply: 
 Config.HackingXPLow = 8                         -- Lowest amount of "Hacking" XP added upon successful hack.
@@ -33,7 +35,7 @@ Config.circleparses = 7                         -- number of circle parses a pla
 Config.circletime = 13                          -- time for player to complete one parse of the circle
 
 -- Reward type:
-Config.CashRegisterReturn = "markedbills"       -- Set to "dirtymoney", "markedbills" or "cash" to alter the reward given.
+Config.CashRegisterReturn = "dirtymoney"        -- Set to "dirtymoney", "markedbills" or "cash" to alter the reward given.
 Config.minRegisterEarn = 2000                   -- Minimum amount earnt from stealing from a cash register
 Config.maxRegisterEarn = 5000                   -- Maximum amount earnt from stealing from a cash register
 
@@ -80,7 +82,7 @@ Config.Registers = {                            -- There is no need to change th
 ----------------------------
 --SAFE (CONVENIENCE STORE)--
 ----------------------------
-Config.SafeReturn = "markedbills"               -- Set to "dirtymoney", "markedbills" or "cash" to alter the reward given.
+Config.SafeReturn = "dirtymoney"                -- Set to "dirtymoney", "markedbills" or "cash" to alter the reward given.
 
 Config.minSafeEarn = 7000                       -- Minimum amount earnt from stealing from a safe (in dirtymoney)
 Config.maxSafeEarn = 22000                      -- Maximum amount earnt from stealing from a safe (in dirtymoney)

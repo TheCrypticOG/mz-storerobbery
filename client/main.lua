@@ -8,6 +8,79 @@ local PlayerJob = {}
 local onDuty = false
 local usingAdvanced = false
 
+---------------
+--PS-DISPATCH--
+---------------
+
+-- YOU MUST MAKE SURE YOU ADD THESE TO YOUR PS-DISPATCH/SERVER/SV_DISPATCHCODES.LUA FILE (of course remove the "--" at the start of the code for each): 
+
+-- ["mz-storerobbery-register"] =  {displayCode = '10-90', description = "Forced Entry: Cash Register", radius = 0, recipientList = {'police'}, blipSprite = 628, blipColour = 1, blipScale = 1.5, blipLength = 2, sound = "Lose_1st", sound2 = "GTAO_FM_Events_Soundset", offset = "false", blipflash = "false"},
+-- ["mz-storerobbery-safe"] =  {displayCode = '10-90', description = "Store Robbery In Progress", radius = 0, recipientList = {'police'}, blipSprite = 350, blipColour = 1, blipScale = 1.5, blipLength = 2, sound = "Lose_1st", sound2 = "GTAO_FM_Events_Soundset", offset = "false", blipflash = "false"},
+
+function getStreetandZone(coords)
+    local zone = GetLabelText(GetNameOfZone(coords.x, coords.y, coords.z))
+    local currentStreetHash = GetStreetNameAtCoord(coords.x, coords.y, coords.z)
+    currentStreetName = GetStreetNameFromHashKey(currentStreetHash)
+    playerStreetsLocation = currentStreetName .. ", " .. zone
+    return playerStreetsLocation
+end
+
+function GetPedGender()
+    local gender = "Male"
+    if QBCore.Functions.GetPlayerData().charinfo.gender == 1 then gender = "Female" end
+    return gender
+end
+
+RegisterNetEvent('mz-storerobbery:client:mzRegisterHit', function()
+    local currentPos = GetEntityCoords(PlayerPedId())
+    local locationInfo = getStreetandZone(currentPos)
+    local gender = GetPedGender()
+    TriggerServerEvent("dispatch:server:notify",{
+        dispatchcodename = "mz-storerobbery-register",          -- has to match the codes in sv_dispatchcodes.lua so that it generates the right blip
+        dispatchCode = "10-90",
+        firstStreet = locationInfo,
+        gender = gender,
+        camId = camId,
+        model = nil,
+        plate = nil,
+        priority = 1,                                           -- priority
+        firstColor = nil,
+        automaticGunfire = false,
+        origin = {
+            x = currentPos.x,
+            y = currentPos.y,
+            z = currentPos.z
+        },
+        dispatchMessage = "Forced Entry: Cash Register",        -- message
+        job = {"police"}                                        -- jobs that will get the alerts
+    })
+end)
+
+RegisterNetEvent('mz-storerobbery:client:mzSafeHit', function()
+    local currentPos = GetEntityCoords(PlayerPedId())
+    local locationInfo = getStreetandZone(currentPos)
+    local gender = GetPedGender()
+    TriggerServerEvent("dispatch:server:notify",{
+        dispatchcodename = "mz-storerobbery-safe",          -- has to match the codes in sv_dispatchcodes.lua so that it generates the right blip
+        dispatchCode = "10-90",
+        firstStreet = locationInfo,
+        gender = gender,
+        camId = camId,
+        model = nil,
+        plate = nil,
+        priority = 1,                                       -- priority
+        firstColor = nil,
+        automaticGunfire = false,
+        origin = {
+            x = currentPos.x,
+            y = currentPos.y,
+            z = currentPos.z
+        },
+        dispatchMessage = "24/7 Store Robbery",             -- message
+        job = {"police"}                                    -- jobs that will get the alerts
+    })
+end)
+
 -------------
 --FUNCTIONS--
 -------------
@@ -224,7 +297,7 @@ local function lockpickFinish(success)
                 end 
             end
         else
-            if math.random(1, 100) <= Config.LockpickBreakChance then
+            if math.random(1, 100) <= Config.LockpickBreakChanceChance then
                 TriggerServerEvent('mz-storerobbery:server:RemoveLockpick')
                 Wait(500)
                 if Config.NotifyType == 'qb' then
@@ -303,8 +376,24 @@ RegisterNetEvent('lockpicks:UseLockpick', function(isAdvanced)
             if CurrentCops >= Config.MinimumStoreRobberyPolice then
                 if usingAdvanced then
                     if Config.BreakRegister == "standard" then 
+                        if Config.psdispatch then 
+                            if not copsCalled then 
+                                TriggerEvent('mz-storerobbery:client:mzRegisterHit')
+                                copsCalled = true
+                                Wait(60000)
+                                copsCalled = false 
+                            end 
+                        end 
                         TriggerEvent('qb-lockpick:client:openLockpick', lockpickFinish)
                     elseif Config.BreakRegister == "circle" then 
+                        if Config.psdispatch then 
+                            if not copsCalled then 
+                                TriggerEvent('mz-storerobbery:client:mzRegisterHit')
+                                copsCalled = true
+                                Wait(60000)
+                                copsCalled = false 
+                            end 
+                        end 
                         TriggerEvent('qb-storerobbery:client:circleLockpick')
                     else 
                         print("Your 'Config.BreakRegister' is not configured properly. Please see config.lua")
@@ -314,17 +403,19 @@ RegisterNetEvent('lockpicks:UseLockpick', function(isAdvanced)
                     if not IsWearingHandshoes() then
                         TriggerServerEvent("evidence:server:CreateFingerDrop", pos)
                     end
-                    if not copsCalled then
-                        local s1, s2 = GetStreetNameAtCoord(pos.x, pos.y, pos.z)
-                        local street1 = GetStreetNameFromHashKey(s1)
-                        local street2 = GetStreetNameFromHashKey(s2)
-                        local streetLabel = street1
-                        if street2 ~= nil then
-                            streetLabel = streetLabel .. " " .. street2
+                    if not Config.psdispatch then 
+                        if not copsCalled then
+                            local s1, s2 = GetStreetNameAtCoord(pos.x, pos.y, pos.z)
+                            local street1 = GetStreetNameFromHashKey(s1)
+                            local street2 = GetStreetNameFromHashKey(s2)
+                            local streetLabel = street1
+                            if street2 ~= nil then
+                                streetLabel = streetLabel .. " " .. street2
+                            end
+                            TriggerServerEvent("qb-storerobbery:server:callCops", "cashier", currentRegister, streetLabel, pos)
+                            copsCalled = true
                         end
-                        TriggerServerEvent("qb-storerobbery:server:callCops", "cashier", currentRegister, streetLabel, pos)
-                        copsCalled = true
-                    end
+                    end 
                 else
                     if Config.BreakRegister == "standard" then 
                         TriggerEvent('qb-lockpick:client:openLockpick', lockpickFinish)
@@ -338,17 +429,19 @@ RegisterNetEvent('lockpicks:UseLockpick', function(isAdvanced)
                     if not IsWearingHandshoes() then
                         TriggerServerEvent("evidence:server:CreateFingerDrop", pos)
                     end
-                    if not copsCalled then
-                        local s1, s2 = GetStreetNameAtCoord(pos.x, pos.y, pos.z)
-                        local street1 = GetStreetNameFromHashKey(s1)
-                        local street2 = GetStreetNameFromHashKey(s2)
-                        local streetLabel = street1
-                        if street2 ~= nil then
-                            streetLabel = streetLabel .. " " .. street2
+                    if not Config.psdispatch then 
+                        if not copsCalled then
+                            local s1, s2 = GetStreetNameAtCoord(pos.x, pos.y, pos.z)
+                            local street1 = GetStreetNameFromHashKey(s1)
+                            local street2 = GetStreetNameFromHashKey(s2)
+                            local streetLabel = street1
+                            if street2 ~= nil then
+                                streetLabel = streetLabel .. " " .. street2
+                            end
+                            TriggerServerEvent("qb-storerobbery:server:callCops", "cashier", currentRegister, streetLabel, pos)
+                            copsCalled = true
                         end
-                        TriggerServerEvent("qb-storerobbery:server:callCops", "cashier", currentRegister, streetLabel, pos)
-                        copsCalled = true
-                    end
+                    end 
                 end
             else
                 if Config.NotifyType == 'qb' then
@@ -405,6 +498,9 @@ CreateThread(function()
                                             if Config.Hacktype == 'numberMatch' then 
                                                 TriggerServerEvent("qb-storerobbery:server:setSafeStatus", currentSafe)
                                                 TriggerEvent('animations:client:EmoteCommandStart', {"kneel"})
+                                                if Config.psdispatch then 
+                                                    TriggerEvent('mz-storerobbery:client:mzSafeHit')
+                                                end 
                                                 TriggerServerEvent("qb-storerobbery:server:ItemRemoval")
                                                 if Config.UsingSkills then
                                                     local lvl8 = false
@@ -417,75 +513,50 @@ CreateThread(function()
                                                     local lvl1 = false
                                                     local lvl0 = false
                                                     exports["mz-skills"]:CheckSkill("Hacking", 12800, function(hasskill)
-                                                        if hasskill then
-                                                            lvl8 = true
-                                                        end
+                                                        if hasskill then lvl8 = true end
                                                     end)
                                                     exports["mz-skills"]:CheckSkill("Hacking", 6400, function(hasskill)
-                                                        if hasskill then
-                                                            lvl7 = true
-                                                        end
+                                                        if hasskill then lvl7 = true end
                                                     end)
                                                     exports["mz-skills"]:CheckSkill("Hacking", 3200, function(hasskill)
-                                                        if hasskill then
-                                                            lvl6 = true
-                                                        end
+                                                        if hasskill then lvl6 = true end
                                                     end)
                                                     exports["mz-skills"]:CheckSkill("Hacking", 1600, function(hasskill)
-                                                        if hasskill then
-                                                            lvl5 = true
-                                                        end
+                                                        if hasskill then lvl5 = true end
                                                     end)
                                                     exports["mz-skills"]:CheckSkill("Hacking", 800, function(hasskill)
-                                                        if hasskill then
-                                                            lvl4 = true
-                                                        end
+                                                        if hasskill then lvl4 = true end
                                                     end)
                                                     exports["mz-skills"]:CheckSkill("Hacking", 400, function(hasskill)
-                                                        if hasskill then
-                                                            lvl3 = true
-                                                        end
+                                                        if hasskill then lvl3 = true end
                                                     end)
                                                     exports["mz-skills"]:CheckSkill("Hacking", 200, function(hasskill)
-                                                        if hasskill then
-                                                            lvl2 = true
-                                                        end
+                                                        if hasskill then lvl2 = true end
                                                     end)
                                                     exports["mz-skills"]:CheckSkill("Hacking", 100, function(hasskill)
-                                                        if hasskill then
-                                                            lvl1 = true
-                                                        end
+                                                        if hasskill then lvl1 = true end
                                                     end)
-                                                    if lvl8 == true then
-                                                        TriggerEvent("mhacking:show")        
+                                                    TriggerEvent("mhacking:show") 
+                                                    if lvl8 then  
                                                         TriggerEvent("mhacking:start", math.random(5, 6), 20, HackingSuccessSafe)
-                                                    elseif lvl7 == true then
-                                                        TriggerEvent("mhacking:show")
+                                                    elseif lvl7 then
                                                         TriggerEvent("mhacking:start", math.random(5, 5), 18, HackingSuccessSafe)
-                                                    elseif lvl6 == true then
-                                                        TriggerEvent("mhacking:show")
+                                                    elseif lvl6 then
                                                         TriggerEvent("mhacking:start", math.random(4, 5), 16, HackingSuccessSafe)
-                                                    elseif lvl5 == true then 
-                                                        TriggerEvent("mhacking:show")
+                                                    elseif lvl5 then 
                                                         TriggerEvent("mhacking:start", math.random(4, 4), 14, HackingSuccessSafe)
-                                                    elseif lvl4 == true then 
-                                                        TriggerEvent("mhacking:show")
+                                                    elseif lvl4 then 
                                                         TriggerEvent("mhacking:start", math.random(3, 4), 14, HackingSuccessSafe)
-                                                    elseif lvl3 == true then
-                                                        TriggerEvent("mhacking:show")
+                                                    elseif lvl3 then
                                                         TriggerEvent("mhacking:start", math.random(3, 3), 18, HackingSuccessSafe)
-                                                    elseif lvl2 == true then
-                                                        TriggerEvent("mhacking:show")
+                                                    elseif lvl2 then
                                                         TriggerEvent("mhacking:start", math.random(2, 3), 16, HackingSuccessSafe)
-                                                    elseif lvl1 == true then 
-                                                        TriggerEvent("mhacking:show")
+                                                    elseif lvl1 then 
                                                         TriggerEvent("mhacking:start", math.random(2, 2), 14, HackingSuccessSafe)
                                                     else 
-                                                        TriggerEvent("mhacking:show")
                                                         TriggerEvent("mhacking:start", math.random(2, 2), 12, HackingSuccessSafe)
                                                     end
                                                 elseif not Config.UsingSkills then
-                                                    TriggerEvent("mhacking:show")
                                                     TriggerEvent("mhacking:start", math.random(5, 5), 20, HackingSuccessSafe)
                                                 else
                                                     print('You need to configure whether you are using mz-skills or not')
@@ -505,47 +576,31 @@ CreateThread(function()
                                                     local lvl1 = false
                                                     local lvl0 = false
                                                     exports["mz-skills"]:CheckSkill("Hacking", 12800, function(hasskill)
-                                                        if hasskill then
-                                                            lvl8 = true
-                                                        end
+                                                        if hasskill then lvl8 = true end
                                                     end)
                                                     exports["mz-skills"]:CheckSkill("Hacking", 6400, function(hasskill)
-                                                        if hasskill then
-                                                            lvl7 = true
-                                                        end
+                                                        if hasskill then lvl7 = true end
                                                     end)
                                                     exports["mz-skills"]:CheckSkill("Hacking", 3200, function(hasskill)
-                                                        if hasskill then
-                                                            lvl6 = true
-                                                        end
+                                                        if hasskill then lvl6 = true end
                                                     end)
                                                     exports["mz-skills"]:CheckSkill("Hacking", 1600, function(hasskill)
-                                                        if hasskill then
-                                                            lvl5 = true
-                                                        end
+                                                        if hasskill then lvl5 = true end
                                                     end)
                                                     exports["mz-skills"]:CheckSkill("Hacking", 800, function(hasskill)
-                                                        if hasskill then
-                                                            lvl4 = true
-                                                        end
+                                                        if hasskill then lvl4 = true end
                                                     end)
                                                     exports["mz-skills"]:CheckSkill("Hacking", 400, function(hasskill)
-                                                        if hasskill then
-                                                            lvl3 = true
-                                                        end
+                                                        if hasskill then lvl3 = true end
                                                     end)
                                                     exports["mz-skills"]:CheckSkill("Hacking", 200, function(hasskill)
-                                                        if hasskill then
-                                                            lvl2 = true
-                                                        end
+                                                        if hasskill then lvl2 = true end
                                                     end)
                                                     exports["mz-skills"]:CheckSkill("Hacking", 100, function(hasskill)
-                                                        if hasskill then
-                                                            lvl1 = true
-                                                        end
-                                                    end) 
+                                                        if hasskill then lvl1 = true end
+                                                    end)
                                                     Wait(500)
-                                                    if lvl8 == true then
+                                                    if lvl8 then
                                                         exports['ps-ui']:VarHack(function(success)
                                                             if success then
                                                                 ExchangeSuccessSafe()
@@ -553,7 +608,7 @@ CreateThread(function()
                                                                 ExchangeFailSafe()
                                                             end
                                                         end, 3, 10) -- Number of Blocks, Time (seconds)
-                                                    elseif lvl7 == true then 
+                                                    elseif lvl7 then 
                                                         exports['ps-ui']:VarHack(function(success)
                                                             if success then
                                                                 ExchangeSuccessSafe()
@@ -561,7 +616,7 @@ CreateThread(function()
                                                                 ExchangeFailSafe()
                                                             end
                                                         end, 4, 10) -- Number of Blocks, Time (seconds)
-                                                    elseif lvl6 == true then 
+                                                    elseif lvl6 then 
                                                         exports['ps-ui']:VarHack(function(success)
                                                             if success then
                                                                 ExchangeSuccessSafe()
@@ -569,7 +624,7 @@ CreateThread(function()
                                                                 ExchangeFailSafe()
                                                             end
                                                         end, 5, 12) -- Number of Blocks, Time (seconds)
-                                                    elseif lvl5 == true then 
+                                                    elseif lvl5 then 
                                                         exports['ps-ui']:VarHack(function(success)
                                                             if success then
                                                                 ExchangeSuccessSafe()
@@ -577,7 +632,7 @@ CreateThread(function()
                                                                 ExchangeFailSafe()
                                                             end
                                                         end, 6, 12) -- Number of Blocks, Time (seconds)
-                                                    elseif lvl4 == true then 
+                                                    elseif lvl4 then 
                                                         exports['ps-ui']:VarHack(function(success)
                                                             if success then
                                                                 ExchangeSuccessSafe()
@@ -585,7 +640,7 @@ CreateThread(function()
                                                                 ExchangeFailSafe()
                                                             end
                                                         end, 7, 12) -- Number of Blocks, Time (seconds)
-                                                    elseif lvl3 == true then 
+                                                    elseif lvl3 then 
                                                         exports['ps-ui']:VarHack(function(success)
                                                             if success then
                                                                 ExchangeSuccessSafe()
@@ -593,7 +648,7 @@ CreateThread(function()
                                                                 ExchangeFailSafe()
                                                             end
                                                         end, 8, 12) -- Number of Blocks, Time (seconds)
-                                                    elseif lvl2 == true then 
+                                                    elseif lvl2 then 
                                                         exports['ps-ui']:VarHack(function(success)
                                                             if success then
                                                                 ExchangeSuccessSafe()
@@ -601,7 +656,7 @@ CreateThread(function()
                                                                 ExchangeFailSafe()
                                                             end
                                                         end, 9, 12) -- Number of Blocks, Time (seconds)
-                                                    elseif lvl1 == true then 
+                                                    elseif lvl1 then 
                                                         exports['ps-ui']:VarHack(function(success)
                                                             if success then
                                                                 ExchangeSuccessSafe()
@@ -609,7 +664,7 @@ CreateThread(function()
                                                                 ExchangeFailSafe()
                                                             end
                                                         end, 9, 10) -- Number of Blocks, Time (seconds)
-                                                    elseif lvl0 == true then 
+                                                    elseif lvl0 then 
                                                         exports['ps-ui']:VarHack(function(success)
                                                             if success then
                                                                 ExchangeSuccessSafe()
@@ -644,46 +699,30 @@ CreateThread(function()
                                                     local lvl1 = false
                                                     local lvl0 = false
                                                     exports["mz-skills"]:CheckSkill("Hacking", 12800, function(hasskill)
-                                                        if hasskill then
-                                                            lvl8 = true
-                                                        end
+                                                        if hasskill then lvl8 = true end
                                                     end)
                                                     exports["mz-skills"]:CheckSkill("Hacking", 6400, function(hasskill)
-                                                        if hasskill then
-                                                            lvl7 = true
-                                                        end
+                                                        if hasskill then lvl7 = true end
                                                     end)
                                                     exports["mz-skills"]:CheckSkill("Hacking", 3200, function(hasskill)
-                                                        if hasskill then
-                                                            lvl6 = true
-                                                        end
+                                                        if hasskill then lvl6 = true end
                                                     end)
                                                     exports["mz-skills"]:CheckSkill("Hacking", 1600, function(hasskill)
-                                                        if hasskill then
-                                                            lvl5 = true
-                                                        end
+                                                        if hasskill then lvl5 = true end
                                                     end)
                                                     exports["mz-skills"]:CheckSkill("Hacking", 800, function(hasskill)
-                                                        if hasskill then
-                                                            lvl4 = true
-                                                        end
+                                                        if hasskill then lvl4 = true end
                                                     end)
                                                     exports["mz-skills"]:CheckSkill("Hacking", 400, function(hasskill)
-                                                        if hasskill then
-                                                            lvl3 = true
-                                                        end
+                                                        if hasskill then lvl3 = true end
                                                     end)
                                                     exports["mz-skills"]:CheckSkill("Hacking", 200, function(hasskill)
-                                                        if hasskill then
-                                                            lvl2 = true
-                                                        end
+                                                        if hasskill then lvl2 = true end
                                                     end)
                                                     exports["mz-skills"]:CheckSkill("Hacking", 100, function(hasskill)
-                                                        if hasskill then
-                                                            lvl1 = true
-                                                        end
-                                                    end) 
-                                                    if lvl8 == true then  
+                                                        if hasskill then lvl1 = true end
+                                                    end)
+                                                    if lvl8 then  
                                                         exports['ps-ui']:Scrambler(function(success)
                                                             if success then
                                                                 ExchangeSuccessSafe()
@@ -691,7 +730,7 @@ CreateThread(function()
                                                                 ExchangeFailSafe()
                                                             end
                                                         end, "numeric", 18, 0) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
-                                                    elseif lvl7 == true then 
+                                                    elseif lvl7 then 
                                                         exports['ps-ui']:Scrambler(function(success)
                                                             if success then
                                                                 ExchangeSuccessSafe()
@@ -699,7 +738,7 @@ CreateThread(function()
                                                                 ExchangeFailSafe()
                                                             end
                                                         end, "alphabet", 17, 0) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
-                                                    elseif lvl6 == true then 
+                                                    elseif lvl6 then 
                                                         exports['ps-ui']:Scrambler(function(success)
                                                             if success then
                                                                 ExchangeSuccessSafe()
@@ -707,7 +746,7 @@ CreateThread(function()
                                                                 ExchangeFailSafe()
                                                             end
                                                         end, "alphanumeric", 16, 0) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
-                                                    elseif lvl5 == true then 
+                                                    elseif lvl5 then 
                                                         exports['ps-ui']:Scrambler(function(success)
                                                             if success then
                                                                 ExchangeSuccessSafe()
@@ -715,7 +754,7 @@ CreateThread(function()
                                                                 ExchangeFailSafe()
                                                             end
                                                         end, "greek", 15, 1) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
-                                                    elseif lvl4 == true then 
+                                                    elseif lvl4 then 
                                                         exports['ps-ui']:Scrambler(function(success)
                                                             if success then
                                                                 ExchangeSuccessSafe()
@@ -723,7 +762,7 @@ CreateThread(function()
                                                                 ExchangeFailSafe()
                                                             end
                                                         end, "braille", 15, 1) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
-                                                    elseif lvl3 == true then 
+                                                    elseif lvl3 then 
                                                         exports['ps-ui']:Scrambler(function(success)
                                                             if success then
                                                                 ExchangeSuccessSafe()
@@ -731,7 +770,7 @@ CreateThread(function()
                                                                 ExchangeFailSafe()
                                                             end
                                                         end, "runes", 14, 1) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )\
-                                                    elseif lvl2 == true then 
+                                                    elseif lvl2 then 
                                                         exports['ps-ui']:Scrambler(function(success)
                                                             if success then
                                                                 ExchangeSuccessSafe()
@@ -739,7 +778,7 @@ CreateThread(function()
                                                                 ExchangeFailSafe()
                                                             end
                                                         end, "greek", 13, 1) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
-                                                    elseif lvl1 == true then 
+                                                    elseif lvl1 then 
                                                         exports['ps-ui']:Scrambler(function(success)
                                                             if success then
                                                                 ExchangeSuccessSafe()
@@ -747,7 +786,7 @@ CreateThread(function()
                                                                 ExchangeFailSafe()
                                                             end
                                                         end, "braille", 12, 1) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
-                                                    elseif lvl0 == true then 
+                                                    elseif lvl0 then 
                                                         exports['ps-ui']:Scrambler(function(success)
                                                             if success then
                                                                 ExchangeSuccessSafe()
@@ -782,47 +821,31 @@ CreateThread(function()
                                                     local lvl1 = false
                                                     local lvl0 = false
                                                     exports["mz-skills"]:CheckSkill("Hacking", 12800, function(hasskill)
-                                                        if hasskill then
-                                                            lvl8 = true
-                                                        end
+                                                        if hasskill then lvl8 = true end
                                                     end)
                                                     exports["mz-skills"]:CheckSkill("Hacking", 6400, function(hasskill)
-                                                        if hasskill then
-                                                            lvl7 = true
-                                                        end
+                                                        if hasskill then lvl7 = true end
                                                     end)
                                                     exports["mz-skills"]:CheckSkill("Hacking", 3200, function(hasskill)
-                                                        if hasskill then
-                                                            lvl6 = true
-                                                        end
+                                                        if hasskill then lvl6 = true end
                                                     end)
                                                     exports["mz-skills"]:CheckSkill("Hacking", 1600, function(hasskill)
-                                                        if hasskill then
-                                                            lvl5 = true
-                                                        end
+                                                        if hasskill then lvl5 = true end
                                                     end)
                                                     exports["mz-skills"]:CheckSkill("Hacking", 800, function(hasskill)
-                                                        if hasskill then
-                                                            lvl4 = true
-                                                        end
+                                                        if hasskill then lvl4 = true end
                                                     end)
                                                     exports["mz-skills"]:CheckSkill("Hacking", 400, function(hasskill)
-                                                        if hasskill then
-                                                            lvl3 = true
-                                                        end
+                                                        if hasskill then lvl3 = true end
                                                     end)
                                                     exports["mz-skills"]:CheckSkill("Hacking", 200, function(hasskill)
-                                                        if hasskill then
-                                                            lvl2 = true
-                                                        end
+                                                        if hasskill then lvl2 = true end
                                                     end)
                                                     exports["mz-skills"]:CheckSkill("Hacking", 100, function(hasskill)
-                                                        if hasskill then
-                                                            lvl1 = true
-                                                        end
+                                                        if hasskill then lvl1 = true end
                                                     end)
                                                     Wait(500)
-                                                    if lvl8 == true then
+                                                    if lvl8 then
                                                         exports['ps-ui']:Maze(function(success)
                                                             if success then
                                                                 ExchangeSuccessSafe()
@@ -830,7 +853,7 @@ CreateThread(function()
                                                                 ExchangeFailSafe()
                                                             end
                                                         end, 20) -- Hack Time Limit
-                                                    elseif lvl7 == true then 
+                                                    elseif lvl7 then 
                                                         exports['ps-ui']:Maze(function(success)
                                                             if success then
                                                                 ExchangeSuccessSafe()
@@ -838,7 +861,7 @@ CreateThread(function()
                                                                 ExchangeFailSafe()
                                                             end
                                                         end, 18) -- Hack Time Limit
-                                                    elseif lvl6 == true then 
+                                                    elseif lvl6 then 
                                                         exports['ps-ui']:Maze(function(success)
                                                             if success then
                                                                 ExchangeSuccessSafe()
@@ -846,7 +869,7 @@ CreateThread(function()
                                                                 ExchangeFailSafe()
                                                             end
                                                         end, 16) -- Hack Time Limit
-                                                    elseif lvl5 == true then 
+                                                    elseif lvl5 then 
                                                         exports['ps-ui']:Maze(function(success)
                                                             if success then
                                                                 ExchangeSuccessSafe()
@@ -854,7 +877,7 @@ CreateThread(function()
                                                                 ExchangeFailSafe()
                                                             end
                                                         end, 15) -- Hack Time Limit
-                                                    elseif lvl4 == true then 
+                                                    elseif lvl4 then 
                                                         exports['ps-ui']:Maze(function(success)
                                                             if success then
                                                                 ExchangeSuccessSafe()
@@ -862,7 +885,7 @@ CreateThread(function()
                                                                 ExchangeFailSafe()
                                                             end
                                                         end, 14) -- Hack Time Limit
-                                                    elseif lvl3 == true then 
+                                                    elseif lvl3 then 
                                                         exports['ps-ui']:Maze(function(success)
                                                             if success then
                                                                 ExchangeSuccessSafe()
@@ -870,7 +893,7 @@ CreateThread(function()
                                                                 ExchangeFailSafe()
                                                             end
                                                         end, 13) -- Hack Time Limit
-                                                    elseif lvl2 == true then 
+                                                    elseif lvl2 then 
                                                         exports['ps-ui']:Maze(function(success)
                                                             if success then
                                                                 ExchangeSuccessSafe()
@@ -878,7 +901,7 @@ CreateThread(function()
                                                                 ExchangeFailSafe()
                                                             end
                                                         end, 12) -- Hack Time Limit
-                                                    elseif lvl1 == true then 
+                                                    elseif lvl1 then 
                                                         exports['ps-ui']:Maze(function(success)
                                                             if success then
                                                                 ExchangeSuccessSafe()
@@ -886,7 +909,7 @@ CreateThread(function()
                                                                 ExchangeFailSafe()
                                                             end
                                                         end, 11) -- Hack Time Limit
-                                                    elseif lvl0 == true then 
+                                                    elseif lvl0 then 
                                                         exports['ps-ui']:Maze(function(success)
                                                             if success then
                                                                 ExchangeSuccessSafe()
@@ -925,18 +948,20 @@ CreateThread(function()
                                             TriggerEvent("SafeCracker:StartMinigame", combination)
                                         end, safe)
                                     end
-                                    if not copsCalled then
-                                        pos = GetEntityCoords(PlayerPedId())
-                                        local s1, s2 = GetStreetNameAtCoord(pos.x, pos.y, pos.z)
-                                        local street1 = GetStreetNameFromHashKey(s1)
-                                        local street2 = GetStreetNameFromHashKey(s2)
-                                        local streetLabel = street1
-                                        if street2 ~= nil then
-                                            streetLabel = streetLabel .. " " .. street2
+                                    if not Config.psdispatch then 
+                                        if not copsCalled then
+                                            pos = GetEntityCoords(PlayerPedId())
+                                            local s1, s2 = GetStreetNameAtCoord(pos.x, pos.y, pos.z)
+                                            local street1 = GetStreetNameFromHashKey(s1)
+                                            local street2 = GetStreetNameFromHashKey(s2)
+                                            local streetLabel = street1
+                                            if street2 ~= nil then
+                                                streetLabel = streetLabel .. " " .. street2
+                                            end
+                                            TriggerServerEvent("qb-storerobbery:server:callCops", "safe", currentSafe, streetLabel, pos)
+                                            copsCalled = true
                                         end
-                                        TriggerServerEvent("qb-storerobbery:server:callCops", "safe", currentSafe, streetLabel, pos)
-                                        copsCalled = true
-                                    end
+                                    end 
                                 else
                                     QBCore.Functions.Notify("Not Enough Police (".. Config.MinimumStoreRobberyPolice .." Required)", "error")
                                 end
