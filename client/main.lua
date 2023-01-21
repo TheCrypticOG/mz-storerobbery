@@ -297,7 +297,7 @@ local function lockpickFinish(success)
                 end 
             end
         else
-            if math.random(1, 100) <= Config.LockpickBreakChanceChance then
+            if math.random(1, 100) <= Config.LockpickBreakChance then
                 TriggerServerEvent('mz-storerobbery:server:RemoveLockpick')
                 Wait(500)
                 if Config.NotifyType == 'qb' then
