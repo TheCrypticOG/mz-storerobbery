@@ -54,10 +54,19 @@ If using lj-inventory, add the images to: lj-inventory/html/images/ - if you are
 
 5. Add the file "Liquorstore.lua" contaiend within the resource files to qb-doorlock/Configs to configure all alcohol doorlock configurations. (All alcohol store doorlocks are designed to operate with the conventional GTA V map, not MLO modifications)
 
-## E. FINALISATION
+## E. PS-DISPATCH
 
-6. If you attend to all of the above steps you will need to restart the server in order for the new added items to be recognised by qb-core. 
+6. Please make sure you add the following to your ps-dispatch/server/sv_dispatchcodes.lua if you are using ps-dispatch:
 
-Please restart your server ensuring that mz-storerobbery is ensured/starts after qb-core starts (ideally it should just form part of your [qb] folder).
+```lua
+["mz-storerobbery-register"] =  {displayCode = '10-90', description = "Forced Entry: Cash Register", radius = 0, recipientList = {'police'}, blipSprite = 628, blipColour = 1, blipScale = 1.5, blipLength = 2, sound = "Lose_1st", sound2 = "GTAO_FM_Events_Soundset", offset = "false", blipflash = "false"},
+["mz-storerobbery-safe"] =  {displayCode = '10-90', description = "Store Robbery In Progress", radius = 0, recipientList = {'police'}, blipSprite = 350, blipColour = 1, blipScale = 1.5, blipLength = 2, sound = "Lose_1st", sound2 = "GTAO_FM_Events_Soundset", offset = "false", blipflash = "false"},
+```
 
-7. Big thanks to Savage#2092 for configuring mz-storerobbery with the gabz MLO coordinates. If you experience errors, please do not annoy either of us as I am not offering supporting for MLO location changes - it's very easy to change vector coordinates in the config file.
+## F. FINALISATION
+
+7. If you attend to all of the above steps you will need to restart the server in order for the new added items to be recognised by qb-core. 
+
+8. Please restart your server ensuring that mz-storerobbery is ensured/starts after qb-core starts (ideally it should just form part of your [qb] folder).
+
+9. Big thanks to Savage#2092 for configuring mz-storerobbery with the gabz MLO coordinates. If you experience errors, please do not annoy either of us as I am not offering supporting for MLO location changes - it's very easy to change vector coordinates in the config file.
