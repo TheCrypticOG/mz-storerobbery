@@ -375,15 +375,15 @@ RegisterNetEvent('lockpicks:UseLockpick', function(isAdvanced)
         if dist <= 1 and not Config.Registers[k].robbed then
             if CurrentCops >= Config.MinimumStoreRobberyPolice then
                 if usingAdvanced then
-                    if Config.BreakRegister == "standard" then 
-                        if Config.psdispatch then 
-                            if not copsCalled then 
-                                TriggerEvent('mz-storerobbery:client:mzRegisterHit')
-                                copsCalled = true
-                                Wait(60000)
-                                copsCalled = false 
-                            end 
+                    if Config.psdispatch then 
+                        if not copsCalled then 
+                            TriggerEvent('mz-storerobbery:client:mzRegisterHit')
+                            copsCalled = true
+                            Wait(60000)
+                            copsCalled = false 
                         end 
+                    end 
+                    if Config.BreakRegister == "standard" then 
                         TriggerEvent('qb-lockpick:client:openLockpick', lockpickFinish)
                     elseif Config.BreakRegister == "circle" then 
                         if Config.psdispatch then 
@@ -417,6 +417,14 @@ RegisterNetEvent('lockpicks:UseLockpick', function(isAdvanced)
                         end
                     end 
                 else
+                    if Config.psdispatch then 
+                        if not copsCalled then 
+                            TriggerEvent('mz-storerobbery:client:mzRegisterHit')
+                            copsCalled = true
+                            Wait(60000)
+                            copsCalled = false 
+                        end 
+                    end 
                     if Config.BreakRegister == "standard" then 
                         TriggerEvent('qb-lockpick:client:openLockpick', lockpickFinish)
                     elseif Config.BreakRegister == "circle" then 
