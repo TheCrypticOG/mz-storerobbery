@@ -11,7 +11,8 @@ Config.DoorList['Liquorstore-door1-outer'] = {
     doorType = 'door',
     distance = 2,
     doorRate = 1.0,
-    autoLock = 30000
+    autoLock = 30000,
+    authorizedJobs = { 'police' },
 }
 
 -- door1-inner created by Mr_Zain
@@ -25,7 +26,8 @@ Config.DoorList['Liquorstore-door1-inner'] = {
     doorType = 'door',
     distance = 2,
     doorRate = 1.0,
-    autoLock = 30000
+    autoLock = 30000,
+    authorizedJobs = { 'police' },
 }
 
 -- door2-outer created by Mr_Zain
@@ -39,7 +41,8 @@ Config.DoorList['Liquorstore-door2-outer'] = {
     objYaw = 314.92572021484,
     objName = 1173348778,
     doorRate = 1.0,
-    autoLock = 30000
+    autoLock = 30000,
+    authorizedJobs = { 'police' },
 }
 
 -- door2-inner created by Mr_Zain
@@ -53,7 +56,8 @@ Config.DoorList['Liquorstore-door2-inner'] = {
     objYaw = 134.92559814453,
     objName = 1173348778,
     doorRate = 1.0,
-    autoLock = 30000
+    autoLock = 30000,
+    authorizedJobs = { 'police' },
 }
 
 -- door3-outer created by Mr_Zain
@@ -67,7 +71,8 @@ Config.DoorList['Liquorstore-door3-outer'] = {
     objYaw = 266.3908996582,
     objName = 1173348778,
     doorRate = 1.0,
-    autoLock = 30000
+    autoLock = 30000,
+    authorizedJobs = { 'police' },
 }
 
 -- door3-inner created by Mr_Zain
@@ -81,7 +86,8 @@ Config.DoorList['Liquorstore-door3-inner'] = {
     objYaw = 86.390754699707,
     objName = 1173348778,
     doorRate = 1.0,
-    autoLock = 30000
+    autoLock = 30000,
+    authorizedJobs = { 'police' },
 }
 
 -- door4-inner created by Mr_Zain
@@ -95,7 +101,8 @@ Config.DoorList['Liquorstore-door4-inner'] = {
     objYaw = 179.99987792969,
     objName = 1173348778,
     doorRate = 1.0,
-    autoLock = 30000
+    autoLock = 30000,
+    authorizedJobs = { 'police' },
 }
 
 -- door4-outer created by Mr_Zain
@@ -109,7 +116,8 @@ Config.DoorList['Liquorstore-door4-outer'] = {
     objYaw = 0.0,
     objName = 1173348778,
     doorRate = 1.0,
-    autoLock = 30000
+    autoLock = 30000,
+    authorizedJobs = { 'police' },
 }
 
 -- door5-outer created by Mr_Zain
@@ -123,7 +131,8 @@ Config.DoorList['Liquorstore-door5-outer'] = {
     objYaw = 97.840026855469,
     objName = 1173348778,
     doorRate = 1.0,
-    autoLock = 30000
+    autoLock = 30000,
+    authorizedJobs = { 'police' },
 }
 
 -- door5-inner created by Mr_Zain
@@ -137,5 +146,6 @@ Config.DoorList['Liquorstore-door5-inner'] = {
     objYaw = 277.83990478516,
     objName = 1173348778,
     doorRate = 1.0,
-    autoLock = 30000
+    autoLock = 30000,
+    authorizedJobs = { 'police' },
 }
