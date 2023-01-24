@@ -16,6 +16,7 @@ local usingAdvanced = false
 
 -- ["mz-storerobbery-register"] =  {displayCode = '10-90', description = "Forced Entry: Cash Register", radius = 0, recipientList = {'police'}, blipSprite = 628, blipColour = 1, blipScale = 1.5, blipLength = 2, sound = "Lose_1st", sound2 = "GTAO_FM_Events_Soundset", offset = "false", blipflash = "false"},
 -- ["mz-storerobbery-safe"] =  {displayCode = '10-90', description = "Store Robbery In Progress", radius = 0, recipientList = {'police'}, blipSprite = 350, blipColour = 1, blipScale = 1.5, blipLength = 2, sound = "Lose_1st", sound2 = "GTAO_FM_Events_Soundset", offset = "false", blipflash = "false"},
+-- ["mz-storerobbery-liquor"] =  {displayCode = '10-90', description = "Liquor Store Robbery", radius = 0, recipientList = {'police'}, blipSprite = 350, blipColour = 1, blipScale = 1.5, blipLength = 2, sound = "Lose_1st", sound2 = "GTAO_FM_Events_Soundset", offset = "false", blipflash = "false"},
 
 function getStreetandZone(coords)
     local zone = GetLabelText(GetNameOfZone(coords.x, coords.y, coords.z))
@@ -77,6 +78,31 @@ RegisterNetEvent('mz-storerobbery:client:mzSafeHit', function()
             z = currentPos.z
         },
         dispatchMessage = "24/7 Store Robbery",             -- message
+        job = {"police"}                                    -- jobs that will get the alerts
+    })
+end)
+
+RegisterNetEvent('mz-storerobbery:client:mzLiquorHit', function()
+    local currentPos = GetEntityCoords(PlayerPedId())
+    local locationInfo = getStreetandZone(currentPos)
+    local gender = GetPedGender()
+    TriggerServerEvent("dispatch:server:notify",{
+        dispatchcodename = "mz-storerobbery-liquor",          -- has to match the codes in sv_dispatchcodes.lua so that it generates the right blip
+        dispatchCode = "10-90",
+        firstStreet = locationInfo,
+        gender = gender,
+        camId = camId,
+        model = nil,
+        plate = nil,
+        priority = 1,                                       -- priority
+        firstColor = nil,
+        automaticGunfire = false,
+        origin = {
+            x = currentPos.x,
+            y = currentPos.y,
+            z = currentPos.z
+        },
+        dispatchMessage = "Liquor Store Robbery",             -- message
         job = {"police"}                                    -- jobs that will get the alerts
     })
 end)
@@ -565,7 +591,6 @@ CreateThread(function()
                                                         TriggerEvent("mhacking:start", math.random(2, 2), 12, HackingSuccessSafe)
                                                     end
                                                 elseif not Config.UsingSkills then
-						    TriggerEvent("mhacking:show")
                                                     TriggerEvent("mhacking:start", math.random(5, 5), 20, HackingSuccessSafe)
                                                 else
                                                     print('You need to configure whether you are using mz-skills or not')
@@ -953,6 +978,9 @@ CreateThread(function()
                                             TriggerEvent('inventory:client:requiredItems', requiredItems, false)
                                         end
                                     else
+                                        if Config.psdispatch then 
+                                            TriggerEvent('mz-storerobbery:client:mzLiquorHit')
+                                        end
                                         QBCore.Functions.TriggerCallback('qb-storerobbery:server:getPadlockCombination', function(combination)
                                             TriggerEvent("SafeCracker:StartMinigame", combination)
                                         end, safe)
@@ -1067,44 +1095,6 @@ function HackingSuccessSafe(success, timeremaining)
 	end
 end
 
--- RegisterNUICallback('TryCombination', function(data, cb)
---     -- QBCore.Functions.TriggerCallback('qb-storerobbery:server:isCombinationRight', function(combination)
---     --     if tonumber(data.combination) ~= nil then
---     --         if tonumber(data.combination) == combination then
---                 TriggerServerEvent("qb-storerobbery:server:SafeReward", currentSafe)
---                 TriggerServerEvent("qb-storerobbery:server:setSafeStatus", currentSafe)
---                 SetNuiFocus(false, false)
---                 SendNUIMessage({
---                     action = "closeKeypad",
---                     error = false,
---                 })
---                 currentSafe = 0
---                 takeAnim()
---             else
---                 TriggerEvent("police:SetCopAlert")
---                 SetNuiFocus(false, false)
---                 SendNUIMessage({
---                     action = "closeKeypad",
---                     error = true,
---                 })
---                 currentSafe = 0
---             end
---         end
---         cb("ok")
---     --end, currentSafe)
--- end)
-
--- function takeAnim()
---     local ped = PlayerPedId()
---     while (not HasAnimDictLoaded("amb@prop_human_bum_bin@idle_b")) do
---         RequestAnimDict("amb@prop_human_bum_bin@idle_b")
---         Wait(100)
---     end
---     TaskPlayAnim(ped, "amb@prop_human_bum_bin@idle_b", "idle_d", 8.0, 8.0, -1, 50, 0, false, false, false)
---     Wait(2500)
---     TaskPlayAnim(ped, "amb@prop_human_bum_bin@idle_b", "exit", 8.0, 8.0, -1, 50, 0, false, false, false)
--- end
-
 RegisterNUICallback('callcops', function(_, cb)
     TriggerEvent("police:SetCopAlert")
     --cb('ok')
@@ -1177,7 +1167,6 @@ RegisterNUICallback("CombinationFail", function(_, cb)
 end)
 
 RegisterNetEvent('qb-storerobbery:client:setRegisterStatus', function(batch, val)
-    -- Has to be a better way maybe like adding a unique id to identify the register
     if(type(batch) ~= "table") then
         Config.Registers[batch] = val
     else
@@ -1287,8 +1276,7 @@ CreateThread(function()
      })
 end)
 
-RegisterNetEvent('qb-storerobbery:client:LiquorOuter1')
-AddEventHandler('qb-storerobbery:client:LiquorOuter1', function()
+RegisterNetEvent('qb-storerobbery:client:LiquorOuter1', function()
     if QBCore.Functions.HasItem("liquorkey") then
         TriggerEvent('animations:client:EmoteCommandStart', {"knock2"})
         local success = exports['qb-lock']:StartLockPickCircle(Config.UnlockParses, Config.UnlockParseTime) --StartLockPickCircle(1,10) 1= how many times, 30 = time in seconds
@@ -1355,8 +1343,7 @@ CreateThread(function()
      })
 end)
 
-RegisterNetEvent('qb-storerobbery:client:LiquorInner1')
-AddEventHandler('qb-storerobbery:client:LiquorInner1', function()
+RegisterNetEvent('qb-storerobbery:client:LiquorInner1', function()
     if QBCore.Functions.HasItem("liquorkey") then
         TriggerEvent('animations:client:EmoteCommandStart', {"knock2"})
         local success = exports['qb-lock']:StartLockPickCircle(Config.UnlockParses, Config.UnlockParseTime) --StartLockPickCircle(1,10) 1= how many times, 30 = time in seconds
@@ -1424,8 +1411,7 @@ CreateThread(function()
      })
 end)
 
-RegisterNetEvent('qb-storerobbery:client:LiquorBoth1')
-AddEventHandler('qb-storerobbery:client:LiquorBoth1', function()
+RegisterNetEvent('qb-storerobbery:client:LiquorBoth1', function()
     TriggerEvent('animations:client:EmoteCommandStart', {"mechanic4"})
     QBCore.Functions.Progressbar("deliver_reycle_package", "Tripping locks...", (Config.TripLocks * 1000), false, true, {
         disableMovement = true,
@@ -1468,8 +1454,7 @@ CreateThread(function()
      })
 end)
 
-RegisterNetEvent('qb-storerobbery:client:LiquorOuter2')
-AddEventHandler('qb-storerobbery:client:LiquorOuter2', function()
+RegisterNetEvent('qb-storerobbery:client:LiquorOuter2', function()
     if QBCore.Functions.HasItem("liquorkey") then
         TriggerEvent('animations:client:EmoteCommandStart', {"knock2"})
         local success = exports['qb-lock']:StartLockPickCircle(Config.UnlockParses, Config.UnlockParseTime) --StartLockPickCircle(1,10) 1= how many times, 30 = time in seconds
@@ -1536,8 +1521,7 @@ CreateThread(function()
      })
 end)
 
-RegisterNetEvent('qb-storerobbery:client:LiquorInner2')
-AddEventHandler('qb-storerobbery:client:LiquorInner2', function()
+RegisterNetEvent('qb-storerobbery:client:LiquorInner2', function()
     if QBCore.Functions.HasItem("liquorkey") then
         TriggerEvent('animations:client:EmoteCommandStart', {"knock2"})
         local success = exports['qb-lock']:StartLockPickCircle(Config.UnlockParses, Config.UnlockParseTime) --StartLockPickCircle(1,10) 1= how many times, 30 = time in seconds
@@ -1605,8 +1589,7 @@ CreateThread(function()
      })
 end)
 
-RegisterNetEvent('qb-storerobbery:client:LiquorBoth2')
-AddEventHandler('qb-storerobbery:client:LiquorBoth2', function()
+RegisterNetEvent('qb-storerobbery:client:LiquorBoth2', function()
     TriggerEvent('animations:client:EmoteCommandStart', {"mechanic4"})
     QBCore.Functions.Progressbar("deliver_reycle_package", "Tripping locks...", (Config.TripLocks * 1000), false, true, {
         disableMovement = true,
@@ -1649,8 +1632,7 @@ CreateThread(function()
      })
 end)
 
-RegisterNetEvent('qb-storerobbery:client:LiquorOuter3')
-AddEventHandler('qb-storerobbery:client:LiquorOuter3', function()
+RegisterNetEvent('qb-storerobbery:client:LiquorOuter3', function()
     if QBCore.Functions.HasItem("liquorkey") then
         TriggerEvent('animations:client:EmoteCommandStart', {"knock2"})
         local success = exports['qb-lock']:StartLockPickCircle(Config.UnlockParses, Config.UnlockParseTime) --StartLockPickCircle(1,10) 1= how many times, 30 = time in seconds
@@ -1717,8 +1699,7 @@ CreateThread(function()
      })
 end)
 
-RegisterNetEvent('qb-storerobbery:client:LiquorInner3')
-AddEventHandler('qb-storerobbery:client:LiquorInner3', function()
+RegisterNetEvent('qb-storerobbery:client:LiquorInner3', function()
     if QBCore.Functions.HasItem("liquorkey") then
         TriggerEvent('animations:client:EmoteCommandStart', {"knock2"})
         local success = exports['qb-lock']:StartLockPickCircle(Config.UnlockParses, Config.UnlockParseTime) --StartLockPickCircle(1,10) 1= how many times, 30 = time in seconds
@@ -1786,8 +1767,7 @@ CreateThread(function()
      })
 end)
 
-RegisterNetEvent('qb-storerobbery:client:LiquorBoth3')
-AddEventHandler('qb-storerobbery:client:LiquorBoth3', function()
+RegisterNetEvent('qb-storerobbery:client:LiquorBoth3', function()
     TriggerEvent('animations:client:EmoteCommandStart', {"mechanic4"})
     QBCore.Functions.Progressbar("deliver_reycle_package", "Tripping locks...", (Config.TripLocks * 1000), false, true, {
         disableMovement = true,
@@ -1830,8 +1810,7 @@ CreateThread(function()
      })
 end)
 
-RegisterNetEvent('qb-storerobbery:client:LiquorOuter4')
-AddEventHandler('qb-storerobbery:client:LiquorOuter4', function()
+RegisterNetEvent('qb-storerobbery:client:LiquorOuter4', function()
     if QBCore.Functions.HasItem("liquorkey") then
         TriggerEvent('animations:client:EmoteCommandStart', {"knock2"})
         local success = exports['qb-lock']:StartLockPickCircle(Config.UnlockParses, Config.UnlockParseTime) --StartLockPickCircle(1,10) 1= how many times, 30 = time in seconds
@@ -1898,8 +1877,7 @@ CreateThread(function()
      })
 end)
 
-RegisterNetEvent('qb-storerobbery:client:LiquorInner4')
-AddEventHandler('qb-storerobbery:client:LiquorInner4', function()
+RegisterNetEvent('qb-storerobbery:client:LiquorInner4', function()
     if QBCore.Functions.HasItem("liquorkey") then
         TriggerEvent('animations:client:EmoteCommandStart', {"knock2"})
         local success = exports['qb-lock']:StartLockPickCircle(Config.UnlockParses, Config.UnlockParseTime) --StartLockPickCircle(1,10) 1= how many times, 30 = time in seconds
@@ -1967,8 +1945,7 @@ CreateThread(function()
      })
 end)
 
-RegisterNetEvent('qb-storerobbery:client:LiquorBoth4')
-AddEventHandler('qb-storerobbery:client:LiquorBoth4', function()
+RegisterNetEvent('qb-storerobbery:client:LiquorBoth4', function()
     TriggerEvent('animations:client:EmoteCommandStart', {"mechanic4"})
     QBCore.Functions.Progressbar("deliver_reycle_package", "Tripping locks...", (Config.TripLocks * 1000), false, true, {
         disableMovement = true,
@@ -2011,8 +1988,7 @@ CreateThread(function()
      })
 end)
 
-RegisterNetEvent('qb-storerobbery:client:LiquorOuter5')
-AddEventHandler('qb-storerobbery:client:LiquorOuter5', function()
+RegisterNetEvent('qb-storerobbery:client:LiquorOuter5', function()
     if QBCore.Functions.HasItem("liquorkey") then
         TriggerEvent('animations:client:EmoteCommandStart', {"knock2"})
         local success = exports['qb-lock']:StartLockPickCircle(Config.UnlockParses, Config.UnlockParseTime) --StartLockPickCircle(1,10) 1= how many times, 30 = time in seconds
@@ -2079,8 +2055,7 @@ CreateThread(function()
      })
 end)
 
-RegisterNetEvent('qb-storerobbery:client:LiquorInner5')
-AddEventHandler('qb-storerobbery:client:LiquorInner5', function()
+RegisterNetEvent('qb-storerobbery:client:LiquorInner5', function()
     if QBCore.Functions.HasItem("liquorkey") then
         TriggerEvent('animations:client:EmoteCommandStart', {"knock2"})
         local success = exports['qb-lock']:StartLockPickCircle(Config.UnlockParses, Config.UnlockParseTime) --StartLockPickCircle(1,10) 1= how many times, 30 = time in seconds
@@ -2148,8 +2123,7 @@ CreateThread(function()
      })
 end)
 
-RegisterNetEvent('qb-storerobbery:client:LiquorBoth5')
-AddEventHandler('qb-storerobbery:client:LiquorBoth5', function()
+RegisterNetEvent('qb-storerobbery:client:LiquorBoth5', function()
     TriggerEvent('animations:client:EmoteCommandStart', {"mechanic4"})
     QBCore.Functions.Progressbar("deliver_reycle_package", "Tripping locks...", (Config.TripLocks * 1000), false, true, {
         disableMovement = true,
