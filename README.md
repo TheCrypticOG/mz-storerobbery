@@ -1,5 +1,9 @@
 ## MZ-STOREROBBERY - a fork of the popular qb-storerobbery with or without mz-skills integration
 
+PLEASE MAKE SURE YOU USE EITHER THE BASE CONFIG OR THE GABZ_CONFIG (NOT BOTH) - DELETE THE ONE YOU ARE NOT USING. 
+
+PLEASE ALSO NOTE, NO SUPPORT IS OFFERED FOR THE GABZ_CONFIG AND IT WILL NOT BE UPDATED.
+
 By Mr_Zain#4139
 
 - Outward file name changed to mz-storerobbery to track developments on forkline - all credit to Kakarot and QB-Core - this is a qb-core base script and all internal functions retain qb-storerobbery designations.
