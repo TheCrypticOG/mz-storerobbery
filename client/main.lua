@@ -390,7 +390,7 @@ RegisterNetEvent('lockpicks:UseLockpick', function(isAdvanced)
         local ped = PlayerPedId()
         local pos = GetEntityCoords(ped)
         local dist = #(pos - Config.Registers[k][1].xyz)
-        if dist <= 1 and not Config.Registers[k].robbed then
+        if dist <= 1.5 and not Config.Registers[k].robbed then
             if CurrentCops >= Config.MinimumStoreRobberyPolice then
                 if usingAdvanced then
                     if Config.BreakRegister == "standard" then 
@@ -1232,9 +1232,9 @@ CreateThread(function()
         local inRange = false
         for k in pairs(Config.Registers) do
             local dist = #(pos - Config.Registers[k][1].xyz)
-            if dist <= 1 and Config.Registers[k].robbed then
+            if dist <= 1.5 and Config.Registers[k].robbed then
                 inRange = true
-                DrawText3Ds(Config.Registers[k][1].xyz, ~'r~Cash register has been emptied...~w~')
+                DrawText3Ds(Config.Registers[k][1].xyz, '~r~Cash register has been emptied...~w~')
             end
         end
         if not inRange then
