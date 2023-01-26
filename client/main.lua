@@ -207,10 +207,6 @@ RegisterNetEvent('qb-storerobbery:client:circleLockpick', function()
                         Wait(10000)
                     end
                 end)
-            else
-                SendNUIMessage({
-                    action = "kekw",
-                })
             end
         else
             TriggerEvent('animations:client:EmoteCommandStart', {"c"})
@@ -305,10 +301,6 @@ local function lockpickFinish(success)
                     Wait(10000)
                 end
             end)
-        else
-            SendNUIMessage({
-                action = "kekw",
-            })
         end
         --cb('ok')
     else
@@ -401,17 +393,8 @@ RegisterNetEvent('lockpicks:UseLockpick', function(isAdvanced)
         if dist <= 1 and not Config.Registers[k].robbed then
             if CurrentCops >= Config.MinimumStoreRobberyPolice then
                 if usingAdvanced then
-                    if Config.psdispatch then 
-                        if not copsCalled then 
-                            TriggerEvent('mz-storerobbery:client:mzRegisterHit')
-                            copsCalled = true
-                            Wait(60000)
-                            copsCalled = false 
-                        end 
-                    end 
                     if Config.BreakRegister == "standard" then 
                         TriggerEvent('qb-lockpick:client:openLockpick', lockpickFinish)
-                    elseif Config.BreakRegister == "circle" then 
                         if Config.psdispatch then 
                             if not copsCalled then 
                                 TriggerEvent('mz-storerobbery:client:mzRegisterHit')
@@ -420,7 +403,16 @@ RegisterNetEvent('lockpicks:UseLockpick', function(isAdvanced)
                                 copsCalled = false 
                             end 
                         end 
+                    elseif Config.BreakRegister == "circle" then 
                         TriggerEvent('qb-storerobbery:client:circleLockpick')
+                        if Config.psdispatch then 
+                            if not copsCalled then 
+                                TriggerEvent('mz-storerobbery:client:mzRegisterHit')
+                                copsCalled = true
+                                Wait(60000)
+                                copsCalled = false 
+                            end 
+                        end 
                     else 
                         print("Your 'Config.BreakRegister' is not configured properly. Please see config.lua")
                     end
@@ -443,18 +435,28 @@ RegisterNetEvent('lockpicks:UseLockpick', function(isAdvanced)
                         end
                     end 
                 else
-                    if Config.psdispatch then 
-                        if not copsCalled then 
-                            TriggerEvent('mz-storerobbery:client:mzRegisterHit')
-                            copsCalled = true
-                            Wait(60000)
-                            copsCalled = false 
-                        end 
-                    end 
                     if Config.BreakRegister == "standard" then 
                         TriggerEvent('qb-lockpick:client:openLockpick', lockpickFinish)
+                        Wait(100)
+                        if Config.psdispatch then 
+                            if not copsCalled then 
+                                TriggerEvent('mz-storerobbery:client:mzRegisterHit')
+                                copsCalled = true
+                                Wait(60000)
+                                copsCalled = false 
+                            end 
+                        end 
                     elseif Config.BreakRegister == "circle" then 
                         TriggerEvent('qb-storerobbery:client:circleLockpick')
+                        Wait(100)
+                        if Config.psdispatch then 
+                            if not copsCalled then 
+                                TriggerEvent('mz-storerobbery:client:mzRegisterHit')
+                                copsCalled = true
+                                Wait(60000)
+                                copsCalled = false 
+                            end 
+                        end 
                     else 
                         print("Your 'Config.BreakRegister' is not configured properly. Please see config.lua")
                     end
@@ -591,6 +593,7 @@ CreateThread(function()
                                                         TriggerEvent("mhacking:start", math.random(2, 2), 12, HackingSuccessSafe)
                                                     end
                                                 elseif not Config.UsingSkills then
+                                                    TriggerEvent("mhacking:show") 
                                                     TriggerEvent("mhacking:start", math.random(5, 5), 20, HackingSuccessSafe)
                                                 else
                                                     print('You need to configure whether you are using mz-skills or not')
@@ -1130,10 +1133,6 @@ RegisterNetEvent('SafeCracker:EndMinigame', function(won)
                         end 
                     end)
                 end
-            else
-                SendNUIMessage({
-                    action = "kekw",
-                })
             end
         end
     end
@@ -1184,7 +1183,6 @@ RegisterNetEvent('qb-storerobbery:client:robberyCall', function(_, _, _, coords)
     if PlayerJob.name == "police" and onDuty then
         PlaySound(-1, "Lose_1st", "GTAO_FM_Events_Soundset", 0, 0, 1)
         TriggerServerEvent('police:server:policeAlert', 'Storerobbery in progress')
-
         local transG = 250
         local blip = AddBlipForCoord(coords.x, coords.y, coords.z)
         SetBlipSprite(blip, 458)
@@ -1236,7 +1234,7 @@ CreateThread(function()
             local dist = #(pos - Config.Registers[k][1].xyz)
             if dist <= 1 and Config.Registers[k].robbed then
                 inRange = true
-                DrawText3Ds(Config.Registers[k][1].xyz, '~r~Cash register has been raided...~w~')
+                DrawText3Ds(Config.Registers[k][1].xyz, ~'r~Cash register has been emptied...~w~')
             end
         end
         if not inRange then
