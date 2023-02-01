@@ -29,12 +29,12 @@ CreateThread(function()
     end
 end)
 
-QBCore.Functions.CreateCallback('qb-storerobbery:server:isCombinationRight', function(_, cb, safe)
+QBCore.Functions.CreateCallback('mz-storerobbery:server:isCombinationRight', function(_, cb, safe)
     cb(SafeCodes[safe])
 end)
 
 --Cash register return
-RegisterNetEvent('qb-storerobbery:server:takeMoney', function(register, isDone)
+RegisterNetEvent('mz-storerobbery:server:takeMoney', function(register, isDone)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     if not Player then 
@@ -91,22 +91,22 @@ RegisterNetEvent('qb-storerobbery:server:takeMoney', function(register, isDone)
     end
 end)
 
-RegisterNetEvent('qb-storerobbery:server:setRegisterStatus', function(register)
+RegisterNetEvent('mz-storerobbery:server:setRegisterStatus', function(register)
     Config.Registers[register].robbed = true
     Config.Registers[register].time = Config.resetTime
-    TriggerClientEvent('qb-storerobbery:client:setRegisterStatus', -1, register, Config.Registers[register])
+    TriggerClientEvent('mz-storerobbery:client:setRegisterStatus', -1, register, Config.Registers[register])
 end)
 
-RegisterNetEvent('qb-storerobbery:server:setSafeStatus', function(safe)
+RegisterNetEvent('mz-storerobbery:server:setSafeStatus', function(safe)
     Config.Safes[safe].robbed = true
-    TriggerClientEvent('qb-storerobbery:client:setSafeStatus', -1, safe, true)
+    TriggerClientEvent('mz-storerobbery:client:setSafeStatus', -1, safe, true)
     SetTimeout(math.random(40, 80) * (60 * 1000), function()
         Config.Safes[safe].robbed = false
-        TriggerClientEvent('qb-storerobbery:client:setSafeStatus', -1, safe, false)
+        TriggerClientEvent('mz-storerobbery:client:setSafeStatus', -1, safe, false)
     end)
 end)
 
-RegisterNetEvent('qb-storerobbery:server:SafeReward', function(safe)
+RegisterNetEvent('mz-storerobbery:server:SafeReward', function(safe)
     local src = source
 	local Player = QBCore.Functions.GetPlayer(src)
     if not Player then 
@@ -195,7 +195,7 @@ RegisterNetEvent('qb-storerobbery:server:SafeReward', function(safe)
     end
 end)
 
-RegisterNetEvent('qb-storerobbery:server:SafeRewardAlcohol', function(safe)
+RegisterNetEvent('mz-storerobbery:server:SafeRewardAlcohol', function(safe)
     local src = source
 	local Player = QBCore.Functions.GetPlayer(src)
     if not Player then 
@@ -284,7 +284,7 @@ RegisterNetEvent('qb-storerobbery:server:SafeRewardAlcohol', function(safe)
     end
 end)
 
-RegisterServerEvent('qb-storerobbery:server:ItemRemoval', function()
+RegisterServerEvent('mz-storerobbery:server:ItemRemoval', function()
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     Player.Functions.RemoveItem('usb2', 1)
@@ -305,7 +305,7 @@ RegisterServerEvent('mz-storerobbery:server:RemoveAdvanced', function()
 	TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['advancedlockpick'], "remove", 1)
 end)
 
-RegisterServerEvent('qb-storerobbery:server:SafeFail', function()
+RegisterServerEvent('mz-storerobbery:server:SafeFail', function()
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     if Config.NotifyType == 'qb' then
@@ -315,7 +315,7 @@ RegisterServerEvent('qb-storerobbery:server:SafeFail', function()
     end
 end)
 
-RegisterNetEvent('qb-storerobbery:server:callCops', function(type, safe, streetLabel, coords)
+RegisterNetEvent('mz-storerobbery:server:callCops', function(type, safe, streetLabel, coords)
     local cameraId
     if type == "safe" then
         cameraId = Config.Safes[safe].camId
@@ -327,7 +327,7 @@ RegisterNetEvent('qb-storerobbery:server:callCops', function(type, safe, streetL
         coords = {x = coords.x, y = coords.y, z = coords.z},
         description = "Someone Is Trying To Rob A Store At "..streetLabel.." (CAMERA ID: "..cameraId..")"
     }
-    TriggerClientEvent("qb-storerobbery:client:robberyCall", -1, type, safe, streetLabel, coords)
+    TriggerClientEvent("mz-storerobbery:client:robberyCall", -1, type, safe, streetLabel, coords)
     TriggerClientEvent("qb-phone:client:addPoliceAlert", -1, alertData)
 end)
 
@@ -346,25 +346,25 @@ CreateThread(function()
             end
         end
         if #toSend > 0 then
-            TriggerClientEvent('qb-storerobbery:client:setRegisterStatus', -1, toSend, false)
+            TriggerClientEvent('mz-storerobbery:client:setRegisterStatus', -1, toSend, false)
         end
         Wait(Config.tickInterval)
     end
 end)
 
-QBCore.Functions.CreateCallback('qb-storerobbery:server:getPadlockCombination', function(_, cb, safe)
+QBCore.Functions.CreateCallback('mz-storerobbery:server:getPadlockCombination', function(_, cb, safe)
     cb(SafeCodes[safe])
 end)
 
-QBCore.Functions.CreateCallback('qb-storerobbery:server:getRegisterStatus', function(_, cb)
+QBCore.Functions.CreateCallback('mz-storerobbery:server:getRegisterStatus', function(_, cb)
     cb(Config.Registers)
 end)
 
-QBCore.Functions.CreateCallback('qb-storerobbery:server:getSafeStatus', function(_, cb)
+QBCore.Functions.CreateCallback('mz-storerobbery:server:getSafeStatus', function(_, cb)
     cb(Config.Safes)
 end)
 
-RegisterServerEvent('qb-storerobbery:server:KeyRemoval', function()
+RegisterServerEvent('mz-storerobbery:server:KeyRemoval', function()
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     Player.Functions.RemoveItem('liquorkey', 1)
@@ -376,7 +376,7 @@ RegisterServerEvent('qb-storerobbery:server:KeyRemoval', function()
     end
 end)
 
-RegisterServerEvent('qb-storerobbery:server:KeyRemovalSuccess', function()
+RegisterServerEvent('mz-storerobbery:server:KeyRemovalSuccess', function()
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     Player.Functions.RemoveItem('liquorkey', 1)

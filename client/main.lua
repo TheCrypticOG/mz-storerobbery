@@ -130,7 +130,7 @@ RegisterNetEvent('police:SetCopCount', function(amount)
 end)
 
 function setupRegister()
-    QBCore.Functions.TriggerCallback('qb-storerobbery:server:getRegisterStatus', function(Registers)
+    QBCore.Functions.TriggerCallback('mz-storerobbery:server:getRegisterStatus', function(Registers)
         for k in pairs(Registers) do
             Config.Registers[k].robbed = Registers[k].robbed
         end
@@ -138,7 +138,7 @@ function setupRegister()
 end
 
 function setupSafes()
-    QBCore.Functions.TriggerCallback('qb-storerobbery:server:getSafeStatus', function(Safes)
+    QBCore.Functions.TriggerCallback('mz-storerobbery:server:getSafeStatus', function(Safes)
         for k in pairs(Safes) do
             Config.Safes[k].robbed = Safes[k].robbed
         end
@@ -169,13 +169,13 @@ function openLockpick(bool)
     SetCursorLocation(0.5, 0.2)
 end
 
-RegisterNetEvent('qb-storerobbery:client:circleLockpick', function()
+RegisterNetEvent('mz-storerobbery:client:circleLockpick', function()
     TriggerEvent('animations:client:EmoteCommandStart', {"uncuff"})
     exports['ps-ui']:Circle(function(success)
         if success then
             TriggerEvent('animations:client:EmoteCommandStart', {"c"})
             if currentRegister ~= 0 then
-                TriggerServerEvent('qb-storerobbery:server:setRegisterStatus', currentRegister)
+                TriggerServerEvent('mz-storerobbery:server:setRegisterStatus', currentRegister)
                 local lockpickTime = (Config.RegisterTime * 1000)
                 LockpickDoorAnim(lockpickTime)
                 QBCore.Functions.Progressbar("search_register", "Emptying the till...", lockpickTime, false, true, {
@@ -190,7 +190,7 @@ RegisterNetEvent('qb-storerobbery:client:circleLockpick', function()
                 }, {}, {}, function() -- Done
                     openingDoor = false
                     ClearPedTasks(PlayerPedId())
-                    TriggerServerEvent('qb-storerobbery:server:takeMoney', currentRegister, true)
+                    TriggerServerEvent('mz-storerobbery:server:takeMoney', currentRegister, true)
                 end, function() -- Cancel
                     openingDoor = false
                     ClearPedTasks(PlayerPedId())
@@ -269,7 +269,7 @@ local function lockpickFinish(success)
     if success then
         if currentRegister ~= 0 then
             openLockpick(false)
-            TriggerServerEvent('qb-storerobbery:server:setRegisterStatus', currentRegister)
+            TriggerServerEvent('mz-storerobbery:server:setRegisterStatus', currentRegister)
             local lockpickTime = (Config.RegisterTime * 1000)
             LockpickDoorAnim(lockpickTime)
             QBCore.Functions.Progressbar("search_register", "Emptying the till...", lockpickTime, false, true, {
@@ -284,7 +284,7 @@ local function lockpickFinish(success)
             }, {}, {}, function() -- Done
                 openingDoor = false
                 ClearPedTasks(PlayerPedId())
-                TriggerServerEvent('qb-storerobbery:server:takeMoney', currentRegister, true)
+                TriggerServerEvent('mz-storerobbery:server:takeMoney', currentRegister, true)
             end, function() -- Cancel
                 openingDoor = false
                 ClearPedTasks(PlayerPedId())
@@ -344,7 +344,7 @@ function LockpickDoorAnim(time)
             TaskPlayAnim(PlayerPedId(), "veh@break_in@0h@p_m_one@", "low_force_entry_ds", 3.0, 3.0, -1, 16, 0, 0, 0, 0)
             Wait(2000)
             time = time - 2
-            TriggerServerEvent('qb-storerobbery:server:takeMoney', currentRegister, false)
+            TriggerServerEvent('mz-storerobbery:server:takeMoney', currentRegister, false)
             if time <= 0 then
                 openingDoor = false
                 StopAnimTask(PlayerPedId(), "veh@break_in@0h@p_m_one@", "low_force_entry_ds", 1.0)
@@ -404,7 +404,7 @@ RegisterNetEvent('lockpicks:UseLockpick', function(isAdvanced)
                             end 
                         end 
                     elseif Config.BreakRegister == "circle" then 
-                        TriggerEvent('qb-storerobbery:client:circleLockpick')
+                        TriggerEvent('mz-storerobbery:client:circleLockpick')
                         if Config.psdispatch then 
                             if not copsCalled then 
                                 TriggerEvent('mz-storerobbery:client:mzRegisterHit')
@@ -430,7 +430,7 @@ RegisterNetEvent('lockpicks:UseLockpick', function(isAdvanced)
                             if street2 ~= nil then
                                 streetLabel = streetLabel .. " " .. street2
                             end
-                            TriggerServerEvent("qb-storerobbery:server:callCops", "cashier", currentRegister, streetLabel, pos)
+                            TriggerServerEvent("mz-storerobbery:server:callCops", "cashier", currentRegister, streetLabel, pos)
                             copsCalled = true
                         end
                     end 
@@ -447,7 +447,7 @@ RegisterNetEvent('lockpicks:UseLockpick', function(isAdvanced)
                             end 
                         end 
                     elseif Config.BreakRegister == "circle" then 
-                        TriggerEvent('qb-storerobbery:client:circleLockpick')
+                        TriggerEvent('mz-storerobbery:client:circleLockpick')
                         Wait(100)
                         if Config.psdispatch then 
                             if not copsCalled then 
@@ -474,7 +474,7 @@ RegisterNetEvent('lockpicks:UseLockpick', function(isAdvanced)
                             if street2 ~= nil then
                                 streetLabel = streetLabel .. " " .. street2
                             end
-                            TriggerServerEvent("qb-storerobbery:server:callCops", "cashier", currentRegister, streetLabel, pos)
+                            TriggerServerEvent("mz-storerobbery:server:callCops", "cashier", currentRegister, streetLabel, pos)
                             copsCalled = true
                         end
                     end 
@@ -532,12 +532,12 @@ CreateThread(function()
                                     if Config.Safes[safe].type == "keypad" then
                                         if QBCore.Functions.HasItem("usb2") then
                                             if Config.Hacktype == 'numberMatch' then 
-                                                TriggerServerEvent("qb-storerobbery:server:setSafeStatus", currentSafe)
+                                                TriggerServerEvent("mz-storerobbery:server:setSafeStatus", currentSafe)
                                                 TriggerEvent('animations:client:EmoteCommandStart', {"kneel"})
                                                 if Config.psdispatch then 
                                                     TriggerEvent('mz-storerobbery:client:mzSafeHit')
                                                 end 
-                                                TriggerServerEvent("qb-storerobbery:server:ItemRemoval")
+                                                TriggerServerEvent("mz-storerobbery:server:ItemRemoval")
                                                 if Config.UsingSkills then
                                                     local lvl8 = false
                                                     local lvl7 = false
@@ -599,9 +599,9 @@ CreateThread(function()
                                                     print('You need to configure whether you are using mz-skills or not')
                                                 end
                                             elseif Config.Hacktype == 'varHack' then
-                                                TriggerServerEvent("qb-storerobbery:server:setSafeStatus", currentSafe)
+                                                TriggerServerEvent("mz-storerobbery:server:setSafeStatus", currentSafe)
                                                 TriggerEvent('animations:client:EmoteCommandStart', {"kneel"})
-                                                TriggerServerEvent("qb-storerobbery:server:ItemRemoval")
+                                                TriggerServerEvent("mz-storerobbery:server:ItemRemoval")
                                                 if Config.UsingSkills then
                                                     local lvl8 = false
                                                     local lvl7 = false
@@ -722,9 +722,9 @@ CreateThread(function()
                                                     print('You need to configure whether you are using mz-skills or not')
                                                 end
                                             elseif Config.Hacktype == 'scrambler' then
-                                                TriggerServerEvent("qb-storerobbery:server:setSafeStatus", currentSafe)
+                                                TriggerServerEvent("mz-storerobbery:server:setSafeStatus", currentSafe)
                                                 TriggerEvent('animations:client:EmoteCommandStart', {"kneel"})
-                                                TriggerServerEvent("qb-storerobbery:server:ItemRemoval")
+                                                TriggerServerEvent("mz-storerobbery:server:ItemRemoval")
                                                 if Config.UsingSkills then
                                                     local lvl8 = false
                                                     local lvl7 = false
@@ -844,9 +844,9 @@ CreateThread(function()
                                                     print('You need to configure whether you are using mz-skills or not')
                                                 end        
                                             elseif Config.Hacktype == 'maze' then
-                                                TriggerServerEvent("qb-storerobbery:server:setSafeStatus", currentSafe)
+                                                TriggerServerEvent("mz-storerobbery:server:setSafeStatus", currentSafe)
                                                 TriggerEvent('animations:client:EmoteCommandStart', {"kneel"})
-                                                TriggerServerEvent("qb-storerobbery:server:ItemRemoval")
+                                                TriggerServerEvent("mz-storerobbery:server:ItemRemoval")
                                                 if Config.UsingSkills then
                                                     local lvl8 = false
                                                     local lvl7 = false
@@ -984,7 +984,7 @@ CreateThread(function()
                                         if Config.psdispatch then 
                                             TriggerEvent('mz-storerobbery:client:mzLiquorHit')
                                         end
-                                        QBCore.Functions.TriggerCallback('qb-storerobbery:server:getPadlockCombination', function(combination)
+                                        QBCore.Functions.TriggerCallback('mz-storerobbery:server:getPadlockCombination', function(combination)
                                             TriggerEvent("SafeCracker:StartMinigame", combination)
                                         end, safe)
                                     end
@@ -998,7 +998,7 @@ CreateThread(function()
                                             if street2 ~= nil then
                                                 streetLabel = streetLabel .. " " .. street2
                                             end
-                                            TriggerServerEvent("qb-storerobbery:server:callCops", "safe", currentSafe, streetLabel, pos)
+                                            TriggerServerEvent("mz-storerobbery:server:callCops", "safe", currentSafe, streetLabel, pos)
                                             copsCalled = true
                                         end
                                     end 
@@ -1051,7 +1051,7 @@ function ExchangeSuccessSafe()
         anim = "grab",
         flags = 16,
     }, {}, {}, function() -- Done
-        TriggerServerEvent("qb-storerobbery:server:SafeReward", currentSafe)
+        TriggerServerEvent("mz-storerobbery:server:SafeReward", currentSafe)
         ClearPedTasks(PlayerPedId())
     end, function() -- Cancel
         ClearPedTasks(PlayerPedId())
@@ -1065,8 +1065,8 @@ end
 
 function ExchangeFailSafe()
     TriggerEvent('animations:client:EmoteCommandStart', {"c"})
-    TriggerServerEvent("qb-storerobbery:server:SafeFail")
-    TriggerServerEvent("qb-storerobbery:server:setSafeStatus", currentSafe)
+    TriggerServerEvent("mz-storerobbery:server:SafeFail")
+    TriggerServerEvent("mz-storerobbery:server:setSafeStatus", currentSafe)
     Wait(1000)
     TriggerServerEvent('hud:server:GainStress', Config.StressForFailing)
     Wait(1000)
@@ -1109,7 +1109,7 @@ RegisterNetEvent('SafeCracker:EndMinigame', function(won)
             if currentSafe ~= 0 then
                 if not Config.Safes[currentSafe].robbed then
                     SetNuiFocus(false, false)
-                    TriggerServerEvent("qb-storerobbery:server:setSafeStatus", currentSafe)
+                    TriggerServerEvent("mz-storerobbery:server:setSafeStatus", currentSafe)
                     local saferobtime = (Config.AlcoholSafeTime * 1000)
                     QBCore.Functions.Progressbar("deliver_reycle_package", "Raiding safe...", saferobtime, false, true, {
                         disableMovement = true,
@@ -1121,7 +1121,7 @@ RegisterNetEvent('SafeCracker:EndMinigame', function(won)
                         anim = "grab",
                         flags = 16,
                     }, {}, {}, function() -- Done
-                        TriggerServerEvent("qb-storerobbery:server:SafeRewardAlcohol", currentSafe)
+                        TriggerServerEvent("mz-storerobbery:server:SafeRewardAlcohol", currentSafe)
                         currentSafe = 0
                         ClearPedTasks(PlayerPedId())
                     end, function() -- Cancel
@@ -1165,7 +1165,7 @@ RegisterNUICallback("CombinationFail", function(_, cb)
     cb("ok")
 end)
 
-RegisterNetEvent('qb-storerobbery:client:setRegisterStatus', function(batch, val)
+RegisterNetEvent('mz-storerobbery:client:setRegisterStatus', function(batch, val)
     if(type(batch) ~= "table") then
         Config.Registers[batch] = val
     else
@@ -1175,11 +1175,11 @@ RegisterNetEvent('qb-storerobbery:client:setRegisterStatus', function(batch, val
     end
 end)
 
-RegisterNetEvent('qb-storerobbery:client:setSafeStatus', function(safe, bool)
+RegisterNetEvent('mz-storerobbery:client:setSafeStatus', function(safe, bool)
     Config.Safes[safe].robbed = bool
 end)
 
-RegisterNetEvent('qb-storerobbery:client:robberyCall', function(_, _, _, coords)
+RegisterNetEvent('mz-storerobbery:client:robberyCall', function(_, _, _, coords)
     if PlayerJob.name == "police" and onDuty then
         PlaySound(-1, "Lose_1st", "GTAO_FM_Events_Soundset", 0, 0, 1)
         TriggerServerEvent('police:server:policeAlert', 'Storerobbery in progress')
@@ -1265,7 +1265,7 @@ CreateThread(function()
             options = { 
             {
                 type = "client",
-                event = "qb-storerobbery:client:LiquorOuter1",
+                event = "mz-storerobbery:client:LiquorOuter1",
                 icon = 'fas fa-key',
                 label = 'Unlock Outer door'
             },
@@ -1274,38 +1274,39 @@ CreateThread(function()
      })
 end)
 
-RegisterNetEvent('qb-storerobbery:client:LiquorOuter1', function()
+RegisterNetEvent('mz-storerobbery:client:LiquorOuter1', function()
     if QBCore.Functions.HasItem("liquorkey") then
         TriggerEvent('animations:client:EmoteCommandStart', {"knock2"})
-        local success = exports['qb-lock']:StartLockPickCircle(Config.UnlockParses, Config.UnlockParseTime) --StartLockPickCircle(1,10) 1= how many times, 30 = time in seconds
-        if success then
-            TriggerServerEvent('qb-doorlock:server:updateState', Config.LiquorOuter1, false, false, false, true)
-            if Config.NotifyType == 'qb' then
-                QBCore.Functions.Notify("The door will auto lock in 30 seconds.", "info", 3500)
-            elseif Config.NotifyType == "okok" then
-                exports['okokNotify']:Alert("BACKUP LOCK", "The door will auto lock in 30 seconds.", 3500, "info")
-            end
-            TriggerEvent('animations:client:EmoteCommandStart', {"c"})
-        else
-            if Config.NotifyType == 'qb' then
-                QBCore.Functions.Notify("You jam the key...", "error", 3500)
-            elseif Config.NotifyType == "okok" then
-                exports['okokNotify']:Alert("KEY STUCK", "You jam the key...", 3500, "error")
-            end
-            TriggerEvent('animations:client:EmoteCommandStart', {"c"})
-            Wait(1000)
-            TriggerServerEvent('hud:server:GainStress', Config.StressForFailing)
-            Wait(1000)
-            if math.random(1, 100) <= Config.BreakChance then 
-                TriggerServerEvent('qb-storerobbery:server:KeyRemoval')
+        exports['ps-ui']:Circle(function(success)
+            if success then
+                TriggerServerEvent('qb-doorlock:server:updateState', Config.LiquorOuter1, false, false, false, true)
+                if Config.NotifyType == 'qb' then
+                    QBCore.Functions.Notify("The door will auto lock in 30 seconds.", "info", 3500)
+                elseif Config.NotifyType == "okok" then
+                    exports['okokNotify']:Alert("BACKUP LOCK", "The door will auto lock in 30 seconds.", 3500, "info")
+                end
+                TriggerEvent('animations:client:EmoteCommandStart', {"c"})
             else
                 if Config.NotifyType == 'qb' then
-                    QBCore.Functions.Notify("Careful... the key feels a little brittle. ", "error", 3500)
+                    QBCore.Functions.Notify("You jam the key...", "error", 3500)
                 elseif Config.NotifyType == "okok" then
-                    exports['okokNotify']:Alert("KEY STRAINED", "Careful... the key feels a little brittle.", 3500, "error")
+                    exports['okokNotify']:Alert("KEY STUCK", "You jam the key...", 3500, "error")
                 end
-            end
-        end
+                TriggerEvent('animations:client:EmoteCommandStart', {"c"})
+                Wait(1000)
+                TriggerServerEvent('hud:server:GainStress', Config.StressForFailing)
+                Wait(1000)
+                if math.random(1, 100) <= Config.BreakChance then 
+                    TriggerServerEvent('mz-storerobbery:server:KeyRemoval')
+                else
+                    if Config.NotifyType == 'qb' then
+                        QBCore.Functions.Notify("Careful... the key feels a little brittle. ", "error", 3500)
+                    elseif Config.NotifyType == "okok" then
+                        exports['okokNotify']:Alert("KEY STRAINED", "Careful... the key feels a little brittle.", 3500, "error")
+                    end
+                end
+        	end
+        end, Config.UnlockParses, Config.UnlockParseTime) -- NumberOfCircles, MS
     else
         local requiredItems = {
             [1] = {name = QBCore.Shared.Items["liquorkey"]["name"], image = QBCore.Shared.Items["liquorkey"]["image"]},
@@ -1332,7 +1333,7 @@ CreateThread(function()
             options = { 
             {
                 type = "client",
-                event = "qb-storerobbery:client:LiquorInner1",
+                event = "mz-storerobbery:client:LiquorInner1",
                 icon = 'fas fa-key',
                 label = 'Unlock Storeroom'
             },
@@ -1341,39 +1342,40 @@ CreateThread(function()
      })
 end)
 
-RegisterNetEvent('qb-storerobbery:client:LiquorInner1', function()
+RegisterNetEvent('mz-storerobbery:client:LiquorInner1', function()
     if QBCore.Functions.HasItem("liquorkey") then
         TriggerEvent('animations:client:EmoteCommandStart', {"knock2"})
-        local success = exports['qb-lock']:StartLockPickCircle(Config.UnlockParses, Config.UnlockParseTime) --StartLockPickCircle(1,10) 1= how many times, 30 = time in seconds
-        if success then
-            TriggerServerEvent('qb-doorlock:server:updateState', Config.LiquorInner1, false, false, false, true)
-            if Config.NotifyType == 'qb' then
-                QBCore.Functions.Notify("The door will auto lock in 30 seconds.", "info", 3500)
-            elseif Config.NotifyType == "okok" then
-                exports['okokNotify']:Alert("BACKUP LOCK", "The door will auto lock in 30 seconds.", 3500, "info")
-            end
-            TriggerServerEvent('qb-storerobbery:server:KeyRemovalSuccess')
-            TriggerEvent('animations:client:EmoteCommandStart', {"c"})
-        else
-            if Config.NotifyType == 'qb' then
-                QBCore.Functions.Notify("You jam the key...", "error", 3500)
-            elseif Config.NotifyType == "okok" then
-                exports['okokNotify']:Alert("KEY STUCK", "You jam the key...", 3500, "error")
-            end
-            TriggerEvent('animations:client:EmoteCommandStart', {"c"})
-            Wait(1000)
-            TriggerServerEvent('hud:server:GainStress', Config.StressForFailing)
-            Wait(1000)
-            if math.random(1, 100) <= Config.BreakChance then 
-                TriggerServerEvent('qb-storerobbery:server:KeyRemoval')
+        exports['ps-ui']:Circle(function(success)
+            if success then
+                TriggerServerEvent('qb-doorlock:server:updateState', Config.LiquorInner1, false, false, false, true)
+                if Config.NotifyType == 'qb' then
+                    QBCore.Functions.Notify("The door will auto lock in 30 seconds.", "info", 3500)
+                elseif Config.NotifyType == "okok" then
+                    exports['okokNotify']:Alert("BACKUP LOCK", "The door will auto lock in 30 seconds.", 3500, "info")
+                end
+                TriggerServerEvent('mz-storerobbery:server:KeyRemovalSuccess')
+                TriggerEvent('animations:client:EmoteCommandStart', {"c"})
             else
                 if Config.NotifyType == 'qb' then
-                    QBCore.Functions.Notify("Careful... the key feels a little brittle. ", "error", 3500)
+                    QBCore.Functions.Notify("You jam the key...", "error", 3500)
                 elseif Config.NotifyType == "okok" then
-                    exports['okokNotify']:Alert("KEY STRAINED", "Careful... the key feels a little brittle.", 3500, "error")
+                    exports['okokNotify']:Alert("KEY STUCK", "You jam the key...", 3500, "error")
                 end
-            end
-        end
+                TriggerEvent('animations:client:EmoteCommandStart', {"c"})
+                Wait(1000)
+                TriggerServerEvent('hud:server:GainStress', Config.StressForFailing)
+                Wait(1000)
+                if math.random(1, 100) <= Config.BreakChance then 
+                    TriggerServerEvent('mz-storerobbery:server:KeyRemoval')
+                else
+                    if Config.NotifyType == 'qb' then
+                        QBCore.Functions.Notify("Careful... the key feels a little brittle. ", "error", 3500)
+                    elseif Config.NotifyType == "okok" then
+                        exports['okokNotify']:Alert("KEY STRAINED", "Careful... the key feels a little brittle.", 3500, "error")
+                    end
+                end
+        	end
+        end, Config.UnlockParses, Config.UnlockParseTime) -- NumberOfCircles, MS
     else
         local requiredItems = {
             [1] = {name = QBCore.Shared.Items["liquorkey"]["name"], image = QBCore.Shared.Items["liquorkey"]["image"]},
@@ -1400,7 +1402,7 @@ CreateThread(function()
             options = { 
             {
                 type = "client",
-                event = "qb-storerobbery:client:LiquorBoth1",
+                event = "mz-storerobbery:client:LiquorBoth1",
                 icon = 'fas fa-hand-scissors',
                 label = 'Trip Locks'
             },
@@ -1409,7 +1411,7 @@ CreateThread(function()
      })
 end)
 
-RegisterNetEvent('qb-storerobbery:client:LiquorBoth1', function()
+RegisterNetEvent('mz-storerobbery:client:LiquorBoth1', function()
     TriggerEvent('animations:client:EmoteCommandStart', {"mechanic4"})
     QBCore.Functions.Progressbar("deliver_reycle_package", "Tripping locks...", (Config.TripLocks * 1000), false, true, {
         disableMovement = true,
@@ -1443,7 +1445,7 @@ CreateThread(function()
             options = { 
             {
                 type = "client",
-                event = "qb-storerobbery:client:LiquorOuter2",
+                event = "mz-storerobbery:client:LiquorOuter2",
                 icon = 'fas fa-key',
                 label = 'Unlock Outer door'
             },
@@ -1452,38 +1454,39 @@ CreateThread(function()
      })
 end)
 
-RegisterNetEvent('qb-storerobbery:client:LiquorOuter2', function()
+RegisterNetEvent('mz-storerobbery:client:LiquorOuter2', function()
     if QBCore.Functions.HasItem("liquorkey") then
         TriggerEvent('animations:client:EmoteCommandStart', {"knock2"})
-        local success = exports['qb-lock']:StartLockPickCircle(Config.UnlockParses, Config.UnlockParseTime) --StartLockPickCircle(1,10) 1= how many times, 30 = time in seconds
-        if success then
-            TriggerServerEvent('qb-doorlock:server:updateState', Config.LiquorOuter2, false, false, false, true)
-            if Config.NotifyType == 'qb' then
-                QBCore.Functions.Notify("The door will auto lock in 30 seconds.", "info", 3500)
-            elseif Config.NotifyType == "okok" then
-                exports['okokNotify']:Alert("BACKUP LOCK", "The door will auto lock in 30 seconds.", 3500, "info")
-            end
-            TriggerEvent('animations:client:EmoteCommandStart', {"c"})
-        else
-            if Config.NotifyType == 'qb' then
-                QBCore.Functions.Notify("You jam the key...", "error", 3500)
-            elseif Config.NotifyType == "okok" then
-                exports['okokNotify']:Alert("KEY STUCK", "You jam the key...", 3500, "error")
-            end
-            TriggerEvent('animations:client:EmoteCommandStart', {"c"})
-            Wait(1000)
-            TriggerServerEvent('hud:server:GainStress', Config.StressForFailing)
-            Wait(1000)
-            if math.random(1, 100) <= Config.BreakChance then 
-                TriggerServerEvent('qb-storerobbery:server:KeyRemoval')
+        exports['ps-ui']:Circle(function(success)
+            if success then
+                TriggerServerEvent('qb-doorlock:server:updateState', Config.LiquorOuter2, false, false, false, true)
+                if Config.NotifyType == 'qb' then
+                    QBCore.Functions.Notify("The door will auto lock in 30 seconds.", "info", 3500)
+                elseif Config.NotifyType == "okok" then
+                    exports['okokNotify']:Alert("BACKUP LOCK", "The door will auto lock in 30 seconds.", 3500, "info")
+                end
+                TriggerEvent('animations:client:EmoteCommandStart', {"c"})
             else
                 if Config.NotifyType == 'qb' then
-                    QBCore.Functions.Notify("Careful... the key feels a little brittle. ", "error", 3500)
+                    QBCore.Functions.Notify("You jam the key...", "error", 3500)
                 elseif Config.NotifyType == "okok" then
-                    exports['okokNotify']:Alert("KEY STRAINED", "Careful... the key feels a little brittle.", 3500, "error")
+                    exports['okokNotify']:Alert("KEY STUCK", "You jam the key...", 3500, "error")
+                end
+                TriggerEvent('animations:client:EmoteCommandStart', {"c"})
+                Wait(1000)
+                TriggerServerEvent('hud:server:GainStress', Config.StressForFailing)
+                Wait(1000)
+                if math.random(1, 100) <= Config.BreakChance then 
+                    TriggerServerEvent('mz-storerobbery:server:KeyRemoval')
+                else
+                    if Config.NotifyType == 'qb' then
+                        QBCore.Functions.Notify("Careful... the key feels a little brittle. ", "error", 3500)
+                    elseif Config.NotifyType == "okok" then
+                        exports['okokNotify']:Alert("KEY STRAINED", "Careful... the key feels a little brittle.", 3500, "error")
+                    end
                 end
             end
-        end
+        end, Config.UnlockParses, Config.UnlockParseTime) -- NumberOfCircles, MS
     else
         local requiredItems = {
             [1] = {name = QBCore.Shared.Items["liquorkey"]["name"], image = QBCore.Shared.Items["liquorkey"]["image"]},
@@ -1510,7 +1513,7 @@ CreateThread(function()
             options = { 
             {
                 type = "client",
-                event = "qb-storerobbery:client:LiquorInner2",
+                event = "mz-storerobbery:client:LiquorInner2",
                 icon = 'fas fa-key',
                 label = 'Unlock Storeroom'
             },
@@ -1519,39 +1522,40 @@ CreateThread(function()
      })
 end)
 
-RegisterNetEvent('qb-storerobbery:client:LiquorInner2', function()
+RegisterNetEvent('mz-storerobbery:client:LiquorInner2', function()
     if QBCore.Functions.HasItem("liquorkey") then
         TriggerEvent('animations:client:EmoteCommandStart', {"knock2"})
-        local success = exports['qb-lock']:StartLockPickCircle(Config.UnlockParses, Config.UnlockParseTime) --StartLockPickCircle(1,10) 1= how many times, 30 = time in seconds
-        if success then
-            TriggerServerEvent('qb-doorlock:server:updateState', Config.LiquorInner2, false, false, false, true)
-            if Config.NotifyType == 'qb' then
-                QBCore.Functions.Notify("The door will auto lock in 30 seconds.", "info", 3500)
-            elseif Config.NotifyType == "okok" then
-                exports['okokNotify']:Alert("BACKUP LOCK", "The door will auto lock in 30 seconds.", 3500, "info")
-            end
-            TriggerServerEvent('qb-storerobbery:server:KeyRemovalSuccess')
-            TriggerEvent('animations:client:EmoteCommandStart', {"c"})
-        else
-            if Config.NotifyType == 'qb' then
-                QBCore.Functions.Notify("You jam the key...", "error", 3500)
-            elseif Config.NotifyType == "okok" then
-                exports['okokNotify']:Alert("KEY STUCK", "You jam the key...", 3500, "error")
-            end
-            TriggerEvent('animations:client:EmoteCommandStart', {"c"})
-            Wait(1000)
-            TriggerServerEvent('hud:server:GainStress', Config.StressForFailing)
-            Wait(1000)
-            if math.random(1, 100) <= Config.BreakChance then 
-                TriggerServerEvent('qb-storerobbery:server:KeyRemoval')
+        exports['ps-ui']:Circle(function(success)
+            if success then
+                TriggerServerEvent('qb-doorlock:server:updateState', Config.LiquorInner2, false, false, false, true)
+                if Config.NotifyType == 'qb' then
+                    QBCore.Functions.Notify("The door will auto lock in 30 seconds.", "info", 3500)
+                elseif Config.NotifyType == "okok" then
+                    exports['okokNotify']:Alert("BACKUP LOCK", "The door will auto lock in 30 seconds.", 3500, "info")
+                end
+                TriggerServerEvent('mz-storerobbery:server:KeyRemovalSuccess')
+                TriggerEvent('animations:client:EmoteCommandStart', {"c"})
             else
                 if Config.NotifyType == 'qb' then
-                    QBCore.Functions.Notify("Careful... the key feels a little brittle. ", "error", 3500)
+                    QBCore.Functions.Notify("You jam the key...", "error", 3500)
                 elseif Config.NotifyType == "okok" then
-                    exports['okokNotify']:Alert("KEY STRAINED", "Careful... the key feels a little brittle.", 3500, "error")
+                    exports['okokNotify']:Alert("KEY STUCK", "You jam the key...", 3500, "error")
+                end
+                TriggerEvent('animations:client:EmoteCommandStart', {"c"})
+                Wait(1000)
+                TriggerServerEvent('hud:server:GainStress', Config.StressForFailing)
+                Wait(1000)
+                if math.random(1, 100) <= Config.BreakChance then 
+                    TriggerServerEvent('mz-storerobbery:server:KeyRemoval')
+                else
+                    if Config.NotifyType == 'qb' then
+                        QBCore.Functions.Notify("Careful... the key feels a little brittle. ", "error", 3500)
+                    elseif Config.NotifyType == "okok" then
+                        exports['okokNotify']:Alert("KEY STRAINED", "Careful... the key feels a little brittle.", 3500, "error")
+                    end
                 end
             end
-        end
+        end, Config.UnlockParses, Config.UnlockParseTime) -- NumberOfCircles, MS
     else
         local requiredItems = {
             [1] = {name = QBCore.Shared.Items["liquorkey"]["name"], image = QBCore.Shared.Items["liquorkey"]["image"]},
@@ -1578,7 +1582,7 @@ CreateThread(function()
             options = { 
             {
                 type = "client",
-                event = "qb-storerobbery:client:LiquorBoth2",
+                event = "mz-storerobbery:client:LiquorBoth2",
                 icon = 'fas fa-hand-scissors',
                 label = 'Trip Locks'
             },
@@ -1587,7 +1591,7 @@ CreateThread(function()
      })
 end)
 
-RegisterNetEvent('qb-storerobbery:client:LiquorBoth2', function()
+RegisterNetEvent('mz-storerobbery:client:LiquorBoth2', function()
     TriggerEvent('animations:client:EmoteCommandStart', {"mechanic4"})
     QBCore.Functions.Progressbar("deliver_reycle_package", "Tripping locks...", (Config.TripLocks * 1000), false, true, {
         disableMovement = true,
@@ -1621,7 +1625,7 @@ CreateThread(function()
             options = { 
             {
                 type = "client",
-                event = "qb-storerobbery:client:LiquorOuter3",
+                event = "mz-storerobbery:client:LiquorOuter3",
                 icon = 'fas fa-key',
                 label = 'Unlock outer door'
             },
@@ -1630,38 +1634,39 @@ CreateThread(function()
      })
 end)
 
-RegisterNetEvent('qb-storerobbery:client:LiquorOuter3', function()
+RegisterNetEvent('mz-storerobbery:client:LiquorOuter3', function()
     if QBCore.Functions.HasItem("liquorkey") then
         TriggerEvent('animations:client:EmoteCommandStart', {"knock2"})
-        local success = exports['qb-lock']:StartLockPickCircle(Config.UnlockParses, Config.UnlockParseTime) --StartLockPickCircle(1,10) 1= how many times, 30 = time in seconds
-        if success then
-            TriggerServerEvent('qb-doorlock:server:updateState', Config.LiquorOuter3, false, false, false, true)
-            if Config.NotifyType == 'qb' then
-                QBCore.Functions.Notify("The door will auto lock in 30 seconds.", "info", 3500)
-            elseif Config.NotifyType == "okok" then
-                exports['okokNotify']:Alert("BACKUP LOCK", "The door will auto lock in 30 seconds.", 3500, "info")
-            end
-            TriggerEvent('animations:client:EmoteCommandStart', {"c"})
-        else
-            if Config.NotifyType == 'qb' then
-                QBCore.Functions.Notify("You jam the key...", "error", 3500)
-            elseif Config.NotifyType == "okok" then
-                exports['okokNotify']:Alert("KEY STUCK", "You jam the key...", 3500, "error")
-            end
-            TriggerEvent('animations:client:EmoteCommandStart', {"c"})
-            Wait(1000)
-            TriggerServerEvent('hud:server:GainStress', Config.StressForFailing)
-            Wait(1000)
-            if math.random(1, 100) <= Config.BreakChance then 
-                TriggerServerEvent('qb-storerobbery:server:KeyRemoval')
+        exports['ps-ui']:Circle(function(success)
+            if success then
+                TriggerServerEvent('qb-doorlock:server:updateState', Config.LiquorOuter3, false, false, false, true)
+                if Config.NotifyType == 'qb' then
+                    QBCore.Functions.Notify("The door will auto lock in 30 seconds.", "info", 3500)
+                elseif Config.NotifyType == "okok" then
+                    exports['okokNotify']:Alert("BACKUP LOCK", "The door will auto lock in 30 seconds.", 3500, "info")
+                end
+                TriggerEvent('animations:client:EmoteCommandStart', {"c"})
             else
                 if Config.NotifyType == 'qb' then
-                    QBCore.Functions.Notify("Careful... the key feels a little brittle. ", "error", 3500)
+                    QBCore.Functions.Notify("You jam the key...", "error", 3500)
                 elseif Config.NotifyType == "okok" then
-                    exports['okokNotify']:Alert("KEY STRAINED", "Careful... the key feels a little brittle.", 3500, "error")
+                    exports['okokNotify']:Alert("KEY STUCK", "You jam the key...", 3500, "error")
+                end
+                TriggerEvent('animations:client:EmoteCommandStart', {"c"})
+                Wait(1000)
+                TriggerServerEvent('hud:server:GainStress', Config.StressForFailing)
+                Wait(1000)
+                if math.random(1, 100) <= Config.BreakChance then 
+                    TriggerServerEvent('mz-storerobbery:server:KeyRemoval')
+                else
+                    if Config.NotifyType == 'qb' then
+                        QBCore.Functions.Notify("Careful... the key feels a little brittle. ", "error", 3500)
+                    elseif Config.NotifyType == "okok" then
+                        exports['okokNotify']:Alert("KEY STRAINED", "Careful... the key feels a little brittle.", 3500, "error")
+                    end
                 end
             end
-        end
+        end, Config.UnlockParses, Config.UnlockParseTime) -- NumberOfCircles, MS
     else
         local requiredItems = {
             [1] = {name = QBCore.Shared.Items["liquorkey"]["name"], image = QBCore.Shared.Items["liquorkey"]["image"]},
@@ -1688,7 +1693,7 @@ CreateThread(function()
             options = { 
             {
                 type = "client",
-                event = "qb-storerobbery:client:LiquorInner3",
+                event = "mz-storerobbery:client:LiquorInner3",
                 icon = 'fas fa-key',
                 label = 'Unlock Storeroom'
             },
@@ -1697,39 +1702,40 @@ CreateThread(function()
      })
 end)
 
-RegisterNetEvent('qb-storerobbery:client:LiquorInner3', function()
+RegisterNetEvent('mz-storerobbery:client:LiquorInner3', function()
     if QBCore.Functions.HasItem("liquorkey") then
         TriggerEvent('animations:client:EmoteCommandStart', {"knock2"})
-        local success = exports['qb-lock']:StartLockPickCircle(Config.UnlockParses, Config.UnlockParseTime) --StartLockPickCircle(1,10) 1= how many times, 30 = time in seconds
-        if success then
-            TriggerServerEvent('qb-doorlock:server:updateState', Config.LiquorInner3, false, false, false, true)
-            if Config.NotifyType == 'qb' then
-                QBCore.Functions.Notify("The door will auto lock in 30 seconds.", "info", 3500)
-            elseif Config.NotifyType == "okok" then
-                exports['okokNotify']:Alert("BACKUP LOCK", "The door will auto lock in 30 seconds.", 3500, "info")
-            end
-            TriggerServerEvent('qb-storerobbery:server:KeyRemovalSuccess')
-            TriggerEvent('animations:client:EmoteCommandStart', {"c"})
-        else
-            if Config.NotifyType == 'qb' then
-                QBCore.Functions.Notify("You jam the key...", "error", 3500)
-            elseif Config.NotifyType == "okok" then
-                exports['okokNotify']:Alert("KEY STUCK", "You jam the key...", 3500, "error")
-            end
-            TriggerEvent('animations:client:EmoteCommandStart', {"c"})
-            Wait(1000)
-            TriggerServerEvent('hud:server:GainStress', Config.StressForFailing)
-            Wait(1000)
-            if math.random(1, 100) <= Config.BreakChance then 
-                TriggerServerEvent('qb-storerobbery:server:KeyRemoval')
+        exports['ps-ui']:Circle(function(success)
+            if success then
+                TriggerServerEvent('qb-doorlock:server:updateState', Config.LiquorInner3, false, false, false, true)
+                if Config.NotifyType == 'qb' then
+                    QBCore.Functions.Notify("The door will auto lock in 30 seconds.", "info", 3500)
+                elseif Config.NotifyType == "okok" then
+                    exports['okokNotify']:Alert("BACKUP LOCK", "The door will auto lock in 30 seconds.", 3500, "info")
+                end
+                TriggerServerEvent('mz-storerobbery:server:KeyRemovalSuccess')
+                TriggerEvent('animations:client:EmoteCommandStart', {"c"})
             else
                 if Config.NotifyType == 'qb' then
-                    QBCore.Functions.Notify("Careful... the key feels a little brittle. ", "error", 3500)
+                    QBCore.Functions.Notify("You jam the key...", "error", 3500)
                 elseif Config.NotifyType == "okok" then
-                    exports['okokNotify']:Alert("KEY STRAINED", "Careful... the key feels a little brittle.", 3500, "error")
+                    exports['okokNotify']:Alert("KEY STUCK", "You jam the key...", 3500, "error")
+                end
+                TriggerEvent('animations:client:EmoteCommandStart', {"c"})
+                Wait(1000)
+                TriggerServerEvent('hud:server:GainStress', Config.StressForFailing)
+                Wait(1000)
+                if math.random(1, 100) <= Config.BreakChance then 
+                    TriggerServerEvent('mz-storerobbery:server:KeyRemoval')
+                else
+                    if Config.NotifyType == 'qb' then
+                        QBCore.Functions.Notify("Careful... the key feels a little brittle. ", "error", 3500)
+                    elseif Config.NotifyType == "okok" then
+                        exports['okokNotify']:Alert("KEY STRAINED", "Careful... the key feels a little brittle.", 3500, "error")
+                    end
                 end
             end
-        end
+        end, Config.UnlockParses, Config.UnlockParseTime) -- NumberOfCircles, MS
     else
         local requiredItems = {
             [1] = {name = QBCore.Shared.Items["liquorkey"]["name"], image = QBCore.Shared.Items["liquorkey"]["image"]},
@@ -1756,7 +1762,7 @@ CreateThread(function()
             options = { 
             {
                 type = "client",
-                event = "qb-storerobbery:client:LiquorBoth3",
+                event = "mz-storerobbery:client:LiquorBoth3",
                 icon = 'fas fa-hand-scissors',
                 label = 'Trip Locks'
             },
@@ -1765,7 +1771,7 @@ CreateThread(function()
      })
 end)
 
-RegisterNetEvent('qb-storerobbery:client:LiquorBoth3', function()
+RegisterNetEvent('mz-storerobbery:client:LiquorBoth3', function()
     TriggerEvent('animations:client:EmoteCommandStart', {"mechanic4"})
     QBCore.Functions.Progressbar("deliver_reycle_package", "Tripping locks...", (Config.TripLocks * 1000), false, true, {
         disableMovement = true,
@@ -1799,7 +1805,7 @@ CreateThread(function()
             options = { 
             {
                 type = "client",
-                event = "qb-storerobbery:client:LiquorOuter4",
+                event = "mz-storerobbery:client:LiquorOuter4",
                 icon = 'fas fa-key',
                 label = 'Unlock outer door'
             },
@@ -1808,38 +1814,39 @@ CreateThread(function()
      })
 end)
 
-RegisterNetEvent('qb-storerobbery:client:LiquorOuter4', function()
+RegisterNetEvent('mz-storerobbery:client:LiquorOuter4', function()
     if QBCore.Functions.HasItem("liquorkey") then
         TriggerEvent('animations:client:EmoteCommandStart', {"knock2"})
-        local success = exports['qb-lock']:StartLockPickCircle(Config.UnlockParses, Config.UnlockParseTime) --StartLockPickCircle(1,10) 1= how many times, 30 = time in seconds
-        if success then
-            TriggerServerEvent('qb-doorlock:server:updateState', Config.LiquorOuter4, false, false, false, true)
-            if Config.NotifyType == 'qb' then
-                QBCore.Functions.Notify("The door will auto lock in 30 seconds.", "info", 3500)
-            elseif Config.NotifyType == "okok" then
-                exports['okokNotify']:Alert("BACKUP LOCK", "The door will auto lock in 30 seconds.", 3500, "info")
-            end
-            TriggerEvent('animations:client:EmoteCommandStart', {"c"})
-        else
-            if Config.NotifyType == 'qb' then
-                QBCore.Functions.Notify("You jam the key...", "error", 3500)
-            elseif Config.NotifyType == "okok" then
-                exports['okokNotify']:Alert("KEY STUCK", "You jam the key...", 3500, "error")
-            end
-            TriggerEvent('animations:client:EmoteCommandStart', {"c"})
-            Wait(1000)
-            TriggerServerEvent('hud:server:GainStress', Config.StressForFailing)
-            Wait(1000)
-            if math.random(1, 100) <= Config.BreakChance then 
-                TriggerServerEvent('qb-storerobbery:server:KeyRemoval')
+        exports['ps-ui']:Circle(function(success)
+            if success then
+                TriggerServerEvent('qb-doorlock:server:updateState', Config.LiquorOuter4, false, false, false, true)
+                if Config.NotifyType == 'qb' then
+                    QBCore.Functions.Notify("The door will auto lock in 30 seconds.", "info", 3500)
+                elseif Config.NotifyType == "okok" then
+                    exports['okokNotify']:Alert("BACKUP LOCK", "The door will auto lock in 30 seconds.", 3500, "info")
+                end
+                TriggerEvent('animations:client:EmoteCommandStart', {"c"})
             else
                 if Config.NotifyType == 'qb' then
-                    QBCore.Functions.Notify("Careful... the key feels a little brittle. ", "error", 3500)
+                    QBCore.Functions.Notify("You jam the key...", "error", 3500)
                 elseif Config.NotifyType == "okok" then
-                    exports['okokNotify']:Alert("KEY STRAINED", "Careful... the key feels a little brittle.", 3500, "error")
+                    exports['okokNotify']:Alert("KEY STUCK", "You jam the key...", 3500, "error")
+                end
+                TriggerEvent('animations:client:EmoteCommandStart', {"c"})
+                Wait(1000)
+                TriggerServerEvent('hud:server:GainStress', Config.StressForFailing)
+                Wait(1000)
+                if math.random(1, 100) <= Config.BreakChance then 
+                    TriggerServerEvent('mz-storerobbery:server:KeyRemoval')
+                else
+                    if Config.NotifyType == 'qb' then
+                        QBCore.Functions.Notify("Careful... the key feels a little brittle. ", "error", 3500)
+                    elseif Config.NotifyType == "okok" then
+                        exports['okokNotify']:Alert("KEY STRAINED", "Careful... the key feels a little brittle.", 3500, "error")
+                    end
                 end
             end
-        end
+        end, Config.UnlockParses, Config.UnlockParseTime) -- NumberOfCircles, MS
     else
         local requiredItems = {
             [1] = {name = QBCore.Shared.Items["liquorkey"]["name"], image = QBCore.Shared.Items["liquorkey"]["image"]},
@@ -1866,7 +1873,7 @@ CreateThread(function()
             options = { 
             {
                 type = "client",
-                event = "qb-storerobbery:client:LiquorInner4",
+                event = "mz-storerobbery:client:LiquorInner4",
                 icon = 'fas fa-key',
                 label = 'Unlock Storeroom'
             },
@@ -1875,39 +1882,40 @@ CreateThread(function()
      })
 end)
 
-RegisterNetEvent('qb-storerobbery:client:LiquorInner4', function()
+RegisterNetEvent('mz-storerobbery:client:LiquorInner4', function()
     if QBCore.Functions.HasItem("liquorkey") then
         TriggerEvent('animations:client:EmoteCommandStart', {"knock2"})
-        local success = exports['qb-lock']:StartLockPickCircle(Config.UnlockParses, Config.UnlockParseTime) --StartLockPickCircle(1,10) 1= how many times, 30 = time in seconds
-        if success then
-            TriggerServerEvent('qb-doorlock:server:updateState', Config.LiquorInner4, false, false, false, true)
-            if Config.NotifyType == 'qb' then
-                QBCore.Functions.Notify("The door will auto lock in 30 seconds.", "info", 3500)
-            elseif Config.NotifyType == "okok" then
-                exports['okokNotify']:Alert("BACKUP LOCK", "The door will auto lock in 30 seconds.", 3500, "info")
-            end
-            TriggerServerEvent('qb-storerobbery:server:KeyRemovalSuccess')
-            TriggerEvent('animations:client:EmoteCommandStart', {"c"})
-        else
-            if Config.NotifyType == 'qb' then
-                QBCore.Functions.Notify("You jam the key...", "error", 3500)
-            elseif Config.NotifyType == "okok" then
-                exports['okokNotify']:Alert("KEY STUCK", "You jam the key...", 3500, "error")
-            end
-            TriggerEvent('animations:client:EmoteCommandStart', {"c"})
-            Wait(1000)
-            TriggerServerEvent('hud:server:GainStress', Config.StressForFailing)
-            Wait(1000)
-            if math.random(1, 100) <= Config.BreakChance then 
-                TriggerServerEvent('qb-storerobbery:server:KeyRemoval')
+        exports['ps-ui']:Circle(function(success)
+            if success then
+                TriggerServerEvent('qb-doorlock:server:updateState', Config.LiquorInner4, false, false, false, true)
+                if Config.NotifyType == 'qb' then
+                    QBCore.Functions.Notify("The door will auto lock in 30 seconds.", "info", 3500)
+                elseif Config.NotifyType == "okok" then
+                    exports['okokNotify']:Alert("BACKUP LOCK", "The door will auto lock in 30 seconds.", 3500, "info")
+                end
+                TriggerServerEvent('mz-storerobbery:server:KeyRemovalSuccess')
+                TriggerEvent('animations:client:EmoteCommandStart', {"c"})
             else
                 if Config.NotifyType == 'qb' then
-                    QBCore.Functions.Notify("Careful... the key feels a little brittle. ", "error", 3500)
+                    QBCore.Functions.Notify("You jam the key...", "error", 3500)
                 elseif Config.NotifyType == "okok" then
-                    exports['okokNotify']:Alert("KEY STRAINED", "Careful... the key feels a little brittle.", 3500, "error")
+                    exports['okokNotify']:Alert("KEY STUCK", "You jam the key...", 3500, "error")
+                end
+                TriggerEvent('animations:client:EmoteCommandStart', {"c"})
+                Wait(1000)
+                TriggerServerEvent('hud:server:GainStress', Config.StressForFailing)
+                Wait(1000)
+                if math.random(1, 100) <= Config.BreakChance then 
+                    TriggerServerEvent('mz-storerobbery:server:KeyRemoval')
+                else
+                    if Config.NotifyType == 'qb' then
+                        QBCore.Functions.Notify("Careful... the key feels a little brittle. ", "error", 3500)
+                    elseif Config.NotifyType == "okok" then
+                        exports['okokNotify']:Alert("KEY STRAINED", "Careful... the key feels a little brittle.", 3500, "error")
+                    end
                 end
             end
-        end
+        end, Config.UnlockParses, Config.UnlockParseTime) -- NumberOfCircles, MS
     else
         local requiredItems = {
             [1] = {name = QBCore.Shared.Items["liquorkey"]["name"], image = QBCore.Shared.Items["liquorkey"]["image"]},
@@ -1934,7 +1942,7 @@ CreateThread(function()
             options = { 
             {
                 type = "client",
-                event = "qb-storerobbery:client:LiquorBoth4",
+                event = "mz-storerobbery:client:LiquorBoth4",
                 icon = 'fas fa-hand-scissors',
                 label = 'Trip Locks'
             },
@@ -1943,7 +1951,7 @@ CreateThread(function()
      })
 end)
 
-RegisterNetEvent('qb-storerobbery:client:LiquorBoth4', function()
+RegisterNetEvent('mz-storerobbery:client:LiquorBoth4', function()
     TriggerEvent('animations:client:EmoteCommandStart', {"mechanic4"})
     QBCore.Functions.Progressbar("deliver_reycle_package", "Tripping locks...", (Config.TripLocks * 1000), false, true, {
         disableMovement = true,
@@ -1977,7 +1985,7 @@ CreateThread(function()
             options = { 
             {
                 type = "client",
-                event = "qb-storerobbery:client:LiquorOuter5",
+                event = "mz-storerobbery:client:LiquorOuter5",
                 icon = 'fas fa-key',
                 label = 'Unlock outer door'
             },
@@ -1986,38 +1994,39 @@ CreateThread(function()
      })
 end)
 
-RegisterNetEvent('qb-storerobbery:client:LiquorOuter5', function()
+RegisterNetEvent('mz-storerobbery:client:LiquorOuter5', function()
     if QBCore.Functions.HasItem("liquorkey") then
         TriggerEvent('animations:client:EmoteCommandStart', {"knock2"})
-        local success = exports['qb-lock']:StartLockPickCircle(Config.UnlockParses, Config.UnlockParseTime) --StartLockPickCircle(1,10) 1= how many times, 30 = time in seconds
-        if success then
-            TriggerServerEvent('qb-doorlock:server:updateState', Config.LiquorOuter5, false, false, false, true)
-            if Config.NotifyType == 'qb' then
-                QBCore.Functions.Notify("The door will auto lock in 30 seconds.", "info", 3500)
-            elseif Config.NotifyType == "okok" then
-                exports['okokNotify']:Alert("BACKUP LOCK", "The door will auto lock in 30 seconds.", 3500, "info")
-            end
-            TriggerEvent('animations:client:EmoteCommandStart', {"c"})
-        else
-            if Config.NotifyType == 'qb' then
-                QBCore.Functions.Notify("You jam the key...", "error", 3500)
-            elseif Config.NotifyType == "okok" then
-                exports['okokNotify']:Alert("KEY STUCK", "You jam the key...", 3500, "error")
-            end
-            TriggerEvent('animations:client:EmoteCommandStart', {"c"})
-            Wait(1000)
-            TriggerServerEvent('hud:server:GainStress', Config.StressForFailing)
-            Wait(1000)
-            if math.random(1, 100) <= Config.BreakChance then 
-                TriggerServerEvent('qb-storerobbery:server:KeyRemoval')
+        exports['ps-ui']:Circle(function(success)
+            if success then
+                TriggerServerEvent('qb-doorlock:server:updateState', Config.LiquorOuter5, false, false, false, true)
+                if Config.NotifyType == 'qb' then
+                    QBCore.Functions.Notify("The door will auto lock in 30 seconds.", "info", 3500)
+                elseif Config.NotifyType == "okok" then
+                    exports['okokNotify']:Alert("BACKUP LOCK", "The door will auto lock in 30 seconds.", 3500, "info")
+                end
+                TriggerEvent('animations:client:EmoteCommandStart', {"c"})
             else
                 if Config.NotifyType == 'qb' then
-                    QBCore.Functions.Notify("Careful... the key feels a little brittle. ", "error", 3500)
+                    QBCore.Functions.Notify("You jam the key...", "error", 3500)
                 elseif Config.NotifyType == "okok" then
-                    exports['okokNotify']:Alert("KEY STRAINED", "Careful... the key feels a little brittle.", 3500, "error")
+                    exports['okokNotify']:Alert("KEY STUCK", "You jam the key...", 3500, "error")
+                end
+                TriggerEvent('animations:client:EmoteCommandStart', {"c"})
+                Wait(1000)
+                TriggerServerEvent('hud:server:GainStress', Config.StressForFailing)
+                Wait(1000)
+                if math.random(1, 100) <= Config.BreakChance then 
+                    TriggerServerEvent('mz-storerobbery:server:KeyRemoval')
+                else
+                    if Config.NotifyType == 'qb' then
+                        QBCore.Functions.Notify("Careful... the key feels a little brittle. ", "error", 3500)
+                    elseif Config.NotifyType == "okok" then
+                        exports['okokNotify']:Alert("KEY STRAINED", "Careful... the key feels a little brittle.", 3500, "error")
+                    end
                 end
             end
-        end
+        end, Config.UnlockParses, Config.UnlockParseTime) -- NumberOfCircles, MS
     else
         local requiredItems = {
             [1] = {name = QBCore.Shared.Items["liquorkey"]["name"], image = QBCore.Shared.Items["liquorkey"]["image"]},
@@ -2044,7 +2053,7 @@ CreateThread(function()
             options = { 
             {
                 type = "client",
-                event = "qb-storerobbery:client:LiquorInner5",
+                event = "mz-storerobbery:client:LiquorInner5",
                 icon = 'fas fa-key',
                 label = 'Unlock Storeroom'
             },
@@ -2053,39 +2062,40 @@ CreateThread(function()
      })
 end)
 
-RegisterNetEvent('qb-storerobbery:client:LiquorInner5', function()
+RegisterNetEvent('mz-storerobbery:client:LiquorInner5', function()
     if QBCore.Functions.HasItem("liquorkey") then
         TriggerEvent('animations:client:EmoteCommandStart', {"knock2"})
-        local success = exports['qb-lock']:StartLockPickCircle(Config.UnlockParses, Config.UnlockParseTime) --StartLockPickCircle(1,10) 1= how many times, 30 = time in seconds
-        if success then
-            TriggerServerEvent('qb-doorlock:server:updateState', Config.LiquorInner5, false, false, false, true)
-            if Config.NotifyType == 'qb' then
-                QBCore.Functions.Notify("The door will auto lock in 30 seconds.", "info", 3500)
-            elseif Config.NotifyType == "okok" then
-                exports['okokNotify']:Alert("BACKUP LOCK", "The door will auto lock in 30 seconds.", 3500, "info")
-            end
-            TriggerServerEvent('qb-storerobbery:server:KeyRemovalSuccess')
-            TriggerEvent('animations:client:EmoteCommandStart', {"c"})
-        else
-            if Config.NotifyType == 'qb' then
-                QBCore.Functions.Notify("You jam the key...", "error", 3500)
-            elseif Config.NotifyType == "okok" then
-                exports['okokNotify']:Alert("KEY STUCK", "You jam the key...", 3500, "error")
-            end
-            TriggerEvent('animations:client:EmoteCommandStart', {"c"})
-            Wait(1000)
-            TriggerServerEvent('hud:server:GainStress', Config.StressForFailing)
-            Wait(1000)
-            if math.random(1, 100) <= Config.BreakChance then 
-                TriggerServerEvent('qb-storerobbery:server:KeyRemoval')
+        exports['ps-ui']:Circle(function(success)
+            if success then
+                TriggerServerEvent('qb-doorlock:server:updateState', Config.LiquorInner5, false, false, false, true)
+                if Config.NotifyType == 'qb' then
+                    QBCore.Functions.Notify("The door will auto lock in 30 seconds.", "info", 3500)
+                elseif Config.NotifyType == "okok" then
+                    exports['okokNotify']:Alert("BACKUP LOCK", "The door will auto lock in 30 seconds.", 3500, "info")
+                end
+                TriggerServerEvent('mz-storerobbery:server:KeyRemovalSuccess')
+                TriggerEvent('animations:client:EmoteCommandStart', {"c"})
             else
                 if Config.NotifyType == 'qb' then
-                    QBCore.Functions.Notify("Careful... the key feels a little brittle. ", "error", 3500)
+                    QBCore.Functions.Notify("You jam the key...", "error", 3500)
                 elseif Config.NotifyType == "okok" then
-                    exports['okokNotify']:Alert("KEY STRAINED", "Careful... the key feels a little brittle.", 3500, "error")
+                    exports['okokNotify']:Alert("KEY STUCK", "You jam the key...", 3500, "error")
+                end
+                TriggerEvent('animations:client:EmoteCommandStart', {"c"})
+                Wait(1000)
+                TriggerServerEvent('hud:server:GainStress', Config.StressForFailing)
+                Wait(1000)
+                if math.random(1, 100) <= Config.BreakChance then 
+                    TriggerServerEvent('mz-storerobbery:server:KeyRemoval')
+                else
+                    if Config.NotifyType == 'qb' then
+                        QBCore.Functions.Notify("Careful... the key feels a little brittle. ", "error", 3500)
+                    elseif Config.NotifyType == "okok" then
+                        exports['okokNotify']:Alert("KEY STRAINED", "Careful... the key feels a little brittle.", 3500, "error")
+                    end
                 end
             end
-        end
+        end, Config.UnlockParses, Config.UnlockParseTime) -- NumberOfCircles, MS
     else
         local requiredItems = {
             [1] = {name = QBCore.Shared.Items["liquorkey"]["name"], image = QBCore.Shared.Items["liquorkey"]["image"]},
@@ -2112,7 +2122,7 @@ CreateThread(function()
             options = { 
             {
                 type = "client",
-                event = "qb-storerobbery:client:LiquorBoth5",
+                event = "mz-storerobbery:client:LiquorBoth5",
                 icon = 'fas fa-hand-scissors',
                 label = 'Trip Locks'
             },
@@ -2121,7 +2131,7 @@ CreateThread(function()
      })
 end)
 
-RegisterNetEvent('qb-storerobbery:client:LiquorBoth5', function()
+RegisterNetEvent('mz-storerobbery:client:LiquorBoth5', function()
     TriggerEvent('animations:client:EmoteCommandStart', {"mechanic4"})
     QBCore.Functions.Progressbar("deliver_reycle_package", "Tripping locks...", (Config.TripLocks * 1000), false, true, {
         disableMovement = true,
