@@ -1,9 +1,10 @@
 fx_version 'cerulean'
+
 game 'gta5'
 
-description 'mz-storerobbery - a replacement to qb-storerobbery (with or without mz-skills): Discord Support: https://discord.gg/CqNYvE3CkA'
+description 'mz-storerobbery - a target-based replacement of qb-storerobbery (with or without mz-skills): Discord Support: https://discord.gg/CqNYvE3CkA'
 
-version '1.2.7'
+version '1.5.0'
 
 author 'Mr_Zain#4139'
 
