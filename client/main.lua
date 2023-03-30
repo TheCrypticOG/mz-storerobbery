@@ -133,7 +133,11 @@ end)
 function setupRegister()
     QBCore.Functions.TriggerCallback('mz-storerobbery:server:getRegisterStatus', function(Registers)
         for k in pairs(Registers) do
-            Config.RegistersTarget[k].robbed = Registers[k].robbed
+            if Config.UseGabz then 
+                Config.RegistersTargetGabz[k].robbed = Registers[k].robbed
+            else
+                Config.RegistersTarget[k].robbed = Registers[k].robbed
+            end 
         end
     end)
 end
@@ -141,7 +145,11 @@ end
 function setupSafes()
     QBCore.Functions.TriggerCallback('mz-storerobbery:server:getSafeStatus', function(Safes)
         for k in pairs(Safes) do
-            Config.SafesTarget[k].robbed = Safes[k].robbed
+            if not Config.SafesTargetGabz then 
+                Config.SafesTarget[k].robbed = Safes[k].robbed
+            else 
+                Config.SafesTargetGabz[k].robbed = Safes[k].robbed
+            end 
         end
     end)
 end
@@ -175,143 +183,283 @@ end
 ------------------
 
 CreateThread(function()
-    for k, v in pairs(Config.RegistersTarget) do
-        exports["qb-target"]:AddBoxZone("zainregisters" .. k, v.coords, 1, 1, {
-            name = "zainregister" .. k,
-            heading = 90,
-            minZ = v.coords.z - 0.2,
-            maxZ = v.coords.z + 0.4,
-            debugPoly = false
-        }, {
-            options = {
-                {
-                    type = "client",
-                    icon = "fa fa-hand",
-                    label = "Attempt to open register",
-                    action = function()
-                        StealFromRegister(k)
-                    end,
-                    canInteract = function()
-                        if v.robbed then
-                            return false
-                        end
-                        return true
-                    end,
-                }
-            },
-            distance = 1.5
-        })
-    end
+    if not Config.UseGabz then 
+        for k, v in pairs(Config.RegistersTarget) do
+            exports["qb-target"]:AddBoxZone("zainregisters" .. k, v.coords, 1, 1, {
+                name = "zainregister" .. k,
+                heading = 90,
+                minZ = v.coords.z - 0.2,
+                maxZ = v.coords.z + 0.4,
+                debugPoly = false
+            }, {
+                options = {
+                    {
+                        type = "client",
+                        icon = "fa fa-hand",
+                        label = "Attempt to open register",
+                        action = function()
+                            StealFromRegister(k)
+                        end,
+                        canInteract = function()
+                            if v.robbed then
+                                return false
+                            end
+                            return true
+                        end,
+                    }
+                },
+                distance = 1.5
+            })
+        end
+    else 
+        for k, v in pairs(Config.RegistersTargetGabz) do
+            exports["qb-target"]:AddBoxZone("zainregisters" .. k, v.coords, 1, 1, {
+                name = "zainregister" .. k,
+                heading = 90,
+                minZ = v.coords.z - 0.2,
+                maxZ = v.coords.z + 0.4,
+                debugPoly = false
+            }, {
+                options = {
+                    {
+                        type = "client",
+                        icon = "fa fa-hand",
+                        label = "Attempt to open register",
+                        action = function()
+                            StealFromRegister(k)
+                        end,
+                        canInteract = function()
+                            if v.robbed then
+                                return false
+                            end
+                            return true
+                        end,
+                    }
+                },
+                distance = 1.5
+            })
+        end
+    end 
 end)
 
 function StealFromRegister(k)
     QBCore.Functions.TriggerCallback('mz-storerobbery:server:getCops', function(cops)
         if QBCore.Functions.HasItem("advancedlockpick") then
-            if not Config.RegistersTarget[k].robbed then
-                if cops >= Config.MinimumStoreRobberyPolice then
-                    currentRegister = k
-                    print(k)
-                    TriggerServerEvent('mz-storerobbery:server:setRegisterStatus', currentRegister)
-                    if Config.BreakRegister == "standard" then 
-                        TriggerEvent('qb-lockpick:client:openLockpick', lockpickFinishAdvanced)
-                        if Config.psdispatch then 
-                            if not copsCalled then 
-                                TriggerEvent('mz-storerobbery:client:mzRegisterHit')
-                                copsCalled = true
-                                Wait(Config.DispatchRegisterDelay * 1000)
-                                copsCalled = false 
+            if not Config.UseGabz then
+                if not Config.RegistersTarget[k].robbed then
+                    if cops >= Config.MinimumStoreRobberyPolice then
+                        currentRegister = k
+                        print(k)
+                        TriggerServerEvent('mz-storerobbery:server:setRegisterStatus', currentRegister)
+                        if Config.BreakRegister == "standard" then 
+                            TriggerEvent('qb-lockpick:client:openLockpick', lockpickFinishAdvanced)
+                            if Config.psdispatch then 
+                                if not copsCalled then 
+                                    TriggerEvent('mz-storerobbery:client:mzRegisterHit')
+                                    copsCalled = true
+                                    Wait(Config.DispatchRegisterDelay * 1000)
+                                    copsCalled = false 
+                                end 
                             end 
-                        end 
-                    elseif Config.BreakRegister == "circle" then 
-                        TriggerEvent('mz-storerobbery:client:circleLockpickAdvanced')
-                        if Config.psdispatch then 
-                            if not copsCalled then 
-                                TriggerEvent('mz-storerobbery:client:mzRegisterHit')
-                                copsCalled = true
-                                Wait(Config.DispatchRegisterDelay * 1000)
-                                copsCalled = false 
+                        elseif Config.BreakRegister == "circle" then 
+                            TriggerEvent('mz-storerobbery:client:circleLockpickAdvanced')
+                            if Config.psdispatch then 
+                                if not copsCalled then 
+                                    TriggerEvent('mz-storerobbery:client:mzRegisterHit')
+                                    copsCalled = true
+                                    Wait(Config.DispatchRegisterDelay * 1000)
+                                    copsCalled = false 
+                                end 
                             end 
-                        end 
-                    else 
-                        print("Your 'Config.BreakRegister' is not configured properly. Please see config.lua")
-                    end
-                    if not IsWearingHandshoes() then
-                        TriggerServerEvent("evidence:server:CreateFingerDrop", pos)
-                    end
-                    if not Config.psdispatch then 
-                        if not copsCalled then
-                            local s1, s2 = GetStreetNameAtCoord(pos.x, pos.y, pos.z)
-                            local street1 = GetStreetNameFromHashKey(s1)
-                            local street2 = GetStreetNameFromHashKey(s2)
-                            local streetLabel = street1
-                            if street2 ~= nil then
-                                streetLabel = streetLabel .. " " .. street2
-                            end
-                            TriggerServerEvent("mz-storerobbery:server:callCops", "cashier", currentRegister, streetLabel, pos)
-                            copsCalled = true
+                        else 
+                            print("Your 'Config.BreakRegister' is not configured properly. Please see config.lua")
                         end
-                    end 
-                else
-                    if Config.NotifyType == 'qb' then
-                        QBCore.Functions.Notify("Not Enough Police ("..Config.MinimumStoreRobberyPolice.. " required)", "error", 3500)
-                    elseif Config.NotifyType == "okok" then
-                        exports['okokNotify']:Alert("MORE COPS", "Not enough Police ("..Config.MinimumStoreRobberyPolice.. " required)", 3500, "error")
-                    end 
+                        if not IsWearingHandshoes() then
+                            TriggerServerEvent("evidence:server:CreateFingerDrop", pos)
+                        end
+                        if not Config.psdispatch then 
+                            if not copsCalled then
+                                local s1, s2 = GetStreetNameAtCoord(pos.x, pos.y, pos.z)
+                                local street1 = GetStreetNameFromHashKey(s1)
+                                local street2 = GetStreetNameFromHashKey(s2)
+                                local streetLabel = street1
+                                if street2 ~= nil then
+                                    streetLabel = streetLabel .. " " .. street2
+                                end
+                                TriggerServerEvent("mz-storerobbery:server:callCops", "cashier", currentRegister, streetLabel, pos)
+                                copsCalled = true
+                            end
+                        end 
+                    else
+                        if Config.NotifyType == 'qb' then
+                            QBCore.Functions.Notify("Not Enough Police ("..Config.MinimumStoreRobberyPolice.. " required)", "error", 3500)
+                        elseif Config.NotifyType == "okok" then
+                            exports['okokNotify']:Alert("MORE COPS", "Not enough Police ("..Config.MinimumStoreRobberyPolice.. " required)", 3500, "error")
+                        end 
+                    end
                 end
-            end
+            else
+                if not Config.RegistersTargetGabz[k].robbed then
+                    if cops >= Config.MinimumStoreRobberyPolice then
+                        currentRegister = k
+                        print(k)
+                        TriggerServerEvent('mz-storerobbery:server:setRegisterStatus', currentRegister)
+                        if Config.BreakRegister == "standard" then 
+                            TriggerEvent('qb-lockpick:client:openLockpick', lockpickFinishAdvanced)
+                            if Config.psdispatch then 
+                                if not copsCalled then 
+                                    TriggerEvent('mz-storerobbery:client:mzRegisterHit')
+                                    copsCalled = true
+                                    Wait(Config.DispatchRegisterDelay * 1000)
+                                    copsCalled = false 
+                                end 
+                            end 
+                        elseif Config.BreakRegister == "circle" then 
+                            TriggerEvent('mz-storerobbery:client:circleLockpickAdvanced')
+                            if Config.psdispatch then 
+                                if not copsCalled then 
+                                    TriggerEvent('mz-storerobbery:client:mzRegisterHit')
+                                    copsCalled = true
+                                    Wait(Config.DispatchRegisterDelay * 1000)
+                                    copsCalled = false 
+                                end 
+                            end 
+                        else 
+                            print("Your 'Config.BreakRegister' is not configured properly. Please see config.lua")
+                        end
+                        if not IsWearingHandshoes() then
+                            TriggerServerEvent("evidence:server:CreateFingerDrop", pos)
+                        end
+                        if not Config.psdispatch then 
+                            if not copsCalled then
+                                local s1, s2 = GetStreetNameAtCoord(pos.x, pos.y, pos.z)
+                                local street1 = GetStreetNameFromHashKey(s1)
+                                local street2 = GetStreetNameFromHashKey(s2)
+                                local streetLabel = street1
+                                if street2 ~= nil then
+                                    streetLabel = streetLabel .. " " .. street2
+                                end
+                                TriggerServerEvent("mz-storerobbery:server:callCops", "cashier", currentRegister, streetLabel, pos)
+                                copsCalled = true
+                            end
+                        end 
+                    else
+                        if Config.NotifyType == 'qb' then
+                            QBCore.Functions.Notify("Not Enough Police ("..Config.MinimumStoreRobberyPolice.. " required)", "error", 3500)
+                        elseif Config.NotifyType == "okok" then
+                            exports['okokNotify']:Alert("MORE COPS", "Not enough Police ("..Config.MinimumStoreRobberyPolice.. " required)", 3500, "error")
+                        end 
+                    end
+                end
+            end  
         elseif QBCore.Functions.HasItem("lockpick") and QBCore.Functions.HasItem("screwdriverset") then
-            if not Config.RegistersTarget[k].robbed then
-                if cops >= Config.MinimumStoreRobberyPolice then
-                    currentRegister = k
-                    print(k)
-                    TriggerServerEvent('mz-storerobbery:server:setRegisterStatus', currentRegister)
-                    if Config.BreakRegister == "standard" then 
-                        TriggerEvent('qb-lockpick:client:openLockpick', lockpickFinish)
-                        if Config.psdispatch then 
-                            if not copsCalled then 
-                                TriggerEvent('mz-storerobbery:client:mzRegisterHit')
-                                copsCalled = true
-                                Wait(Config.DispatchRegisterDelay * 1000)
-                                copsCalled = false 
+            if not Config.UseGabz then 
+                if not Config.RegistersTarget[k].robbed then
+                    if cops >= Config.MinimumStoreRobberyPolice then
+                        currentRegister = k
+                        print(k)
+                        TriggerServerEvent('mz-storerobbery:server:setRegisterStatus', currentRegister)
+                        if Config.BreakRegister == "standard" then 
+                            TriggerEvent('qb-lockpick:client:openLockpick', lockpickFinish)
+                            if Config.psdispatch then 
+                                if not copsCalled then 
+                                    TriggerEvent('mz-storerobbery:client:mzRegisterHit')
+                                    copsCalled = true
+                                    Wait(Config.DispatchRegisterDelay * 1000)
+                                    copsCalled = false 
+                                end 
                             end 
-                        end 
-                    elseif Config.BreakRegister == "circle" then 
-                        TriggerEvent('mz-storerobbery:client:circleLockpick')
-                        if Config.psdispatch then 
-                            if not copsCalled then 
-                                TriggerEvent('mz-storerobbery:client:mzRegisterHit')
-                                copsCalled = true
-                                Wait(Config.DispatchRegisterDelay * 1000)
-                                copsCalled = false 
+                        elseif Config.BreakRegister == "circle" then 
+                            TriggerEvent('mz-storerobbery:client:circleLockpick')
+                            if Config.psdispatch then 
+                                if not copsCalled then 
+                                    TriggerEvent('mz-storerobbery:client:mzRegisterHit')
+                                    copsCalled = true
+                                    Wait(Config.DispatchRegisterDelay * 1000)
+                                    copsCalled = false 
+                                end 
                             end 
-                        end 
-                    else 
-                        print("Your 'Config.BreakRegister' is not configured properly. Please see config.lua")
-                    end
-                    if not IsWearingHandshoes() then
-                        TriggerServerEvent("evidence:server:CreateFingerDrop", pos)
-                    end
-                    if not Config.psdispatch then 
-                        if not copsCalled then
-                            local s1, s2 = GetStreetNameAtCoord(pos.x, pos.y, pos.z)
-                            local street1 = GetStreetNameFromHashKey(s1)
-                            local street2 = GetStreetNameFromHashKey(s2)
-                            local streetLabel = street1
-                            if street2 ~= nil then
-                                streetLabel = streetLabel .. " " .. street2
-                            end
-                            TriggerServerEvent("mz-storerobbery:server:callCops", "cashier", currentRegister, streetLabel, pos)
-                            copsCalled = true
+                        else 
+                            print("Your 'Config.BreakRegister' is not configured properly. Please see config.lua")
                         end
-                    end 
-                else
-                    if Config.NotifyType == 'qb' then
-                        QBCore.Functions.Notify("Not Enough Police ("..Config.MinimumStoreRobberyPolice.. " required)", "error", 3500)
-                    elseif Config.NotifyType == "okok" then
-                        exports['okokNotify']:Alert("MORE COPS", "Not enough Police ("..Config.MinimumStoreRobberyPolice.. " required)", 3500, "error")
-                    end 
+                        if not IsWearingHandshoes() then
+                            TriggerServerEvent("evidence:server:CreateFingerDrop", pos)
+                        end
+                        if not Config.psdispatch then 
+                            if not copsCalled then
+                                local s1, s2 = GetStreetNameAtCoord(pos.x, pos.y, pos.z)
+                                local street1 = GetStreetNameFromHashKey(s1)
+                                local street2 = GetStreetNameFromHashKey(s2)
+                                local streetLabel = street1
+                                if street2 ~= nil then
+                                    streetLabel = streetLabel .. " " .. street2
+                                end
+                                TriggerServerEvent("mz-storerobbery:server:callCops", "cashier", currentRegister, streetLabel, pos)
+                                copsCalled = true
+                            end
+                        end 
+                    else
+                        if Config.NotifyType == 'qb' then
+                            QBCore.Functions.Notify("Not Enough Police ("..Config.MinimumStoreRobberyPolice.. " required)", "error", 3500)
+                        elseif Config.NotifyType == "okok" then
+                            exports['okokNotify']:Alert("MORE COPS", "Not enough Police ("..Config.MinimumStoreRobberyPolice.. " required)", 3500, "error")
+                        end 
+                    end
                 end
-            end
+            else
+                if not Config.RegistersTargetGabz[k].robbed then
+                    if cops >= Config.MinimumStoreRobberyPolice then
+                        currentRegister = k
+                        print(k)
+                        TriggerServerEvent('mz-storerobbery:server:setRegisterStatus', currentRegister)
+                        if Config.BreakRegister == "standard" then 
+                            TriggerEvent('qb-lockpick:client:openLockpick', lockpickFinish)
+                            if Config.psdispatch then 
+                                if not copsCalled then 
+                                    TriggerEvent('mz-storerobbery:client:mzRegisterHit')
+                                    copsCalled = true
+                                    Wait(Config.DispatchRegisterDelay * 1000)
+                                    copsCalled = false 
+                                end 
+                            end 
+                        elseif Config.BreakRegister == "circle" then 
+                            TriggerEvent('mz-storerobbery:client:circleLockpick')
+                            if Config.psdispatch then 
+                                if not copsCalled then 
+                                    TriggerEvent('mz-storerobbery:client:mzRegisterHit')
+                                    copsCalled = true
+                                    Wait(Config.DispatchRegisterDelay * 1000)
+                                    copsCalled = false 
+                                end 
+                            end 
+                        else 
+                            print("Your 'Config.BreakRegister' is not configured properly. Please see config.lua")
+                        end
+                        if not IsWearingHandshoes() then
+                            TriggerServerEvent("evidence:server:CreateFingerDrop", pos)
+                        end
+                        if not Config.psdispatch then 
+                            if not copsCalled then
+                                local s1, s2 = GetStreetNameAtCoord(pos.x, pos.y, pos.z)
+                                local street1 = GetStreetNameFromHashKey(s1)
+                                local street2 = GetStreetNameFromHashKey(s2)
+                                local streetLabel = street1
+                                if street2 ~= nil then
+                                    streetLabel = streetLabel .. " " .. street2
+                                end
+                                TriggerServerEvent("mz-storerobbery:server:callCops", "cashier", currentRegister, streetLabel, pos)
+                                copsCalled = true
+                            end
+                        end 
+                    else
+                        if Config.NotifyType == 'qb' then
+                            QBCore.Functions.Notify("Not Enough Police ("..Config.MinimumStoreRobberyPolice.. " required)", "error", 3500)
+                        elseif Config.NotifyType == "okok" then
+                            exports['okokNotify']:Alert("MORE COPS", "Not enough Police ("..Config.MinimumStoreRobberyPolice.. " required)", 3500, "error")
+                        end 
+                    end
+                end
+            end  
         else
             local requiredItems = {
                 [1] = {name = QBCore.Shared.Items["lockpick"]["name"], image = QBCore.Shared.Items["lockpick"]["image"]},
@@ -617,398 +765,478 @@ end
 -------------------
 
 CreateThread(function()
-    for safe, v in pairs(Config.SafesTarget) do
-        exports["qb-target"]:AddBoxZone("zainsafes" .. safe, v.coords, 1, 1, {
-            name = "zainsafe" .. safe,
-            heading = 40,
-            minZ = v.coords.z - 1,
-            maxZ = v.coords.z + 1,
-            debugPoly = false
-        }, {
-            options = {
-                {
-                    type = "client",
-                    icon = "fa fa-hand",
-                    label = "Break into safe",
-                    action = function()
-                        StealfromSafe(safe)
-                    end,
-                    canInteract = function()
-                        if v.robbed then
-                            return false
-                        end
-                        return true
-                    end,
-                }
-            },
-            distance = 1.5
-        })
-    end
+    if not Config.SafesTargetGabz then 
+        for safe, v in pairs(Config.SafesTarget) do
+            exports["qb-target"]:AddBoxZone("zainsafes" .. safe, v.coords, 1, 1, {
+                name = "zainsafe" .. safe,
+                heading = 40,
+                minZ = v.coords.z - 1,
+                maxZ = v.coords.z + 1,
+                debugPoly = false
+            }, {
+                options = {
+                    {
+                        type = "client",
+                        icon = "fa fa-hand",
+                        label = "Break into safe",
+                        action = function()
+                            StealfromSafe(safe)
+                        end,
+                        canInteract = function()
+                            if v.robbed then
+                                return false
+                            end
+                            return true
+                        end,
+                    }
+                },
+                distance = 1.5
+            })
+        end
+    else
+        for safe, v in pairs(Config.SafesTargetGabz) do
+            exports["qb-target"]:AddBoxZone("zainsafes" .. safe, v.coords, 1, 1, {
+                name = "zainsafe" .. safe,
+                heading = 40,
+                minZ = v.coords.z - 1,
+                maxZ = v.coords.z + 1,
+                debugPoly = false
+            }, {
+                options = {
+                    {
+                        type = "client",
+                        icon = "fa fa-hand",
+                        label = "Break into safe",
+                        action = function()
+                            StealfromSafe(safe)
+                        end,
+                        canInteract = function()
+                            if v.robbed then
+                                return false
+                            end
+                            return true
+                        end,
+                    }
+                },
+                distance = 1.5
+            })
+        end
+    end  
 end)
 
 function StealfromSafe(safe)
     QBCore.Functions.TriggerCallback('mz-storerobbery:server:getCops', function(cops)
-        if not Config.SafesTarget[safe].robbed then
-            if cops >= Config.MinimumStoreRobberyPolice then
-                currentSafe = safe
-                print(currentSafe)
-                if math.random(1, 100) <= Config.PrintChanceSafe and not IsWearingHandshoes() then
-                    TriggerServerEvent("evidence:server:CreateFingerDrop", pos)
-                end
-                if Config.SafesTarget[safe].type == "keypad" then
-                    if QBCore.Functions.HasItem(Config.SafeReqItem) then
-                        TriggerServerEvent('mz-storerobbery:server:setSafeStatus', currentSafe)
-                        if Config.mzskills then 
-                            local lvl8 = false
-                            local lvl7 = false
-                            local lvl6 = false
-                            local lvl5 = false
-                            local lvl4 = false
-                            local lvl3 = false
-                            local lvl2 = false
-                            local lvl1 = false
-                            local lvl0 = false
-                        end 
-                        if Config.Hacktype == 'mHacking' then 
-                            TriggerServerEvent("mz-storerobbery:server:setSafeStatus", currentSafe)
-                            TriggerEvent('animations:client:EmoteCommandStart', {"kneel"})
-                            if Config.psdispatch then 
-                                TriggerEvent('mz-storerobbery:client:mzSafeHit')
+        if not Config.SafesTargetGabz then
+            if not Config.SafesTarget[safe].robbed then
+                if cops >= Config.MinimumStoreRobberyPolice then
+                    currentSafe = safe
+                    print(currentSafe)
+                    if math.random(1, 100) <= Config.PrintChanceSafe and not IsWearingHandshoes() then
+                        TriggerServerEvent("evidence:server:CreateFingerDrop", pos)
+                    end
+                    if Config.SafesTarget[safe].type == "keypad" then
+                        if QBCore.Functions.HasItem(Config.SafeReqItem) then
+                            TriggerServerEvent('mz-storerobbery:server:setSafeStatus', currentSafe)
+                            if Config.mzskills then 
+                                local lvl8 = false
+                                local lvl7 = false
+                                local lvl6 = false
+                                local lvl5 = false
+                                local lvl4 = false
+                                local lvl3 = false
+                                local lvl2 = false
+                                local lvl1 = false
+                                local lvl0 = false
                             end 
-                            TriggerServerEvent("mz-storerobbery:server:ItemRemoval")
-                            if Config.mzskills then
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl8, function(hasskill)
-                                    if hasskill then lvl8 = true end
-                                end)
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl7, function(hasskill)
-                                    if hasskill then lvl7 = true end
-                                end)
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl6, function(hasskill)
-                                    if hasskill then lvl6 = true end
-                                end)
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl5, function(hasskill)
-                                    if hasskill then lvl5 = true end
-                                end)
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl4, function(hasskill)
-                                    if hasskill then lvl4 = true end
-                                end)
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl3, function(hasskill)
-                                    if hasskill then lvl3 = true end
-                                end)
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl2, function(hasskill)
-                                    if hasskill then lvl2 = true end
-                                end)
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl1, function(hasskill)
-                                    if hasskill then lvl1 = true end
-                                end)
-                                TriggerEvent("mhacking:show") 
-                                if lvl8 then  
-                                    TriggerEvent("mhacking:start", math.random(Config.mhacklvl8low, Config.mhacklvl8high), Config.mhacklvl8time, HackingSuccessSafe)
-                                elseif lvl7 then
-                                    TriggerEvent("mhacking:start", math.random(Config.mhacklvl7low, Config.mhacklvl7high), Config.mhacklvl7time, HackingSuccessSafe)
-                                elseif lvl6 then
-                                    TriggerEvent("mhacking:start", math.random(Config.mhacklvl6low, Config.mhacklvl6high), Config.mhacklvl6time, HackingSuccessSafe)
-                                elseif lvl5 then 
-                                    TriggerEvent("mhacking:start", math.random(Config.mhacklvl5low, Config.mhacklvl5high), Config.mhacklvl5time, HackingSuccessSafe)
-                                elseif lvl4 then 
-                                    TriggerEvent("mhacking:start", math.random(Config.mhacklvl4low, Config.mhacklvl4high), Config.mhacklvl4time, HackingSuccessSafe)
-                                elseif lvl3 then
-                                    TriggerEvent("mhacking:start", math.random(Config.mhacklvl3low, Config.mhacklvl3high), Config.mhacklvl3time, HackingSuccessSafe)
-                                elseif lvl2 then
-                                    TriggerEvent("mhacking:start", math.random(Config.mhacklvl2low, Config.mhacklvl2high), Config.mhacklvl2time, HackingSuccessSafe)
-                                elseif lvl1 then 
-                                    TriggerEvent("mhacking:start", math.random(Config.mhacklvl1low, Config.mhacklvl1high), Config.mhacklvl1time, HackingSuccessSafe)
-                                else 
-                                    TriggerEvent("mhacking:start", math.random(Config.mhacklvl0low, Config.mhacklvl0high), Config.mhacklvl0time, HackingSuccessSafe)
-                                end
-                            elseif not Config.mzskills then
-                                TriggerEvent("mhacking:show") 
-                                TriggerEvent("mhacking:start", math.random(Config.mhacklvlNOXPlow, Config.mhacklvlNOXPlow), Config.mhacklvlNOXPtime, HackingSuccessSafe)
-                            else
-                                print('You need to configure whether you are using mz-skills or not - see Config.mzskills')
-                            end
-                        elseif Config.Hacktype == 'varHack' then
-                            TriggerServerEvent("mz-storerobbery:server:setSafeStatus", currentSafe)
-                            TriggerEvent('animations:client:EmoteCommandStart', {"kneel"})
-                            TriggerServerEvent("mz-storerobbery:server:ItemRemoval")
-                            if Config.mzskills then
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl8, function(hasskill)
-                                    if hasskill then lvl8 = true end
-                                end)
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl7, function(hasskill)
-                                    if hasskill then lvl7 = true end
-                                end)
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl6, function(hasskill)
-                                    if hasskill then lvl6 = true end
-                                end)
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl5, function(hasskill)
-                                    if hasskill then lvl5 = true end
-                                end)
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl4, function(hasskill)
-                                    if hasskill then lvl4 = true end
-                                end)
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl3, function(hasskill)
-                                    if hasskill then lvl3 = true end
-                                end)
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl2, function(hasskill)
-                                    if hasskill then lvl2 = true end
-                                end)
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl1, function(hasskill)
-                                    if hasskill then lvl1 = true end
-                                end)
-                                Wait(500)
-                                if lvl8 then
-                                    exports['ps-ui']:VarHack(function(success)
-                                        if success then
-                                            ExchangeSuccessSafe()
-                                        else
-                                            ExchangeFailSafe(safe)
-                                        end
-                                    end, Config.varhacklvl8blocks, Config.varhacklvl8time) -- Number of Blocks, Time (seconds)
-                                elseif lvl7 then 
-                                    exports['ps-ui']:VarHack(function(success)
-                                        if success then
-                                            ExchangeSuccessSafe()
-                                        else
-                                            ExchangeFailSafe(safe)
-                                        end
-                                    end, Config.varhacklvl7blocks, Config.varhacklvl7time) -- Number of Blocks, Time (seconds)
-                                elseif lvl6 then 
-                                    exports['ps-ui']:VarHack(function(success)
-                                        if success then
-                                            ExchangeSuccessSafe()
-                                        else
-                                            ExchangeFailSafe(safe)
-                                        end
-                                    end, Config.varhacklvl6blocks, Config.varhacklvl6time) -- Number of Blocks, Time (seconds)
-                                elseif lvl5 then 
-                                    exports['ps-ui']:VarHack(function(success)
-                                        if success then
-                                            ExchangeSuccessSafe()
-                                        else
-                                            ExchangeFailSafe(safe)
-                                        end
-                                    end, Config.varhacklvl5blocks, Config.varhacklvl5time) -- Number of Blocks, Time (seconds)
-                                elseif lvl4 then 
-                                    exports['ps-ui']:VarHack(function(success)
-                                        if success then
-                                            ExchangeSuccessSafe()
-                                        else
-                                            ExchangeFailSafe(safe)
-                                        end
-                                    end, Config.varhacklvl4blocks, Config.varhacklvl4time) -- Number of Blocks, Time (seconds)
-                                elseif lvl3 then 
-                                    exports['ps-ui']:VarHack(function(success)
-                                        if success then
-                                            ExchangeSuccessSafe()
-                                        else
-                                            ExchangeFailSafe(safe)
-                                        end
-                                    end, Config.varhacklvl3blocks, Config.varhacklvl3time) -- Number of Blocks, Time (seconds)
-                                elseif lvl2 then 
-                                    exports['ps-ui']:VarHack(function(success)
-                                        if success then
-                                            ExchangeSuccessSafe()
-                                        else
-                                            ExchangeFailSafe(safe)
-                                        end
-                                    end, Config.varhacklvl2blocks, Config.varhacklvl2time) -- Number of Blocks, Time (seconds)
-                                elseif lvl1 then 
-                                    exports['ps-ui']:VarHack(function(success)
-                                        if success then
-                                            ExchangeSuccessSafe()
-                                        else
-                                            ExchangeFailSafe(safe)
-                                        end
-                                    end, Config.varhacklvl1blocks, Config.varhacklvl1time) -- Number of Blocks, Time (seconds)
-                                elseif lvl0 then 
-                                    exports['ps-ui']:VarHack(function(success)
-                                        if success then
-                                            ExchangeSuccessSafe()
-                                        else
-                                            ExchangeFailSafe(safe)
-                                        end
-                                    end, Config.varhacklvl0blocks, Config.varhacklvl0time) -- Number of Blocks, Time (seconds)
-                                end
-                            elseif not Config.mzskills then
-                                exports['ps-ui']:VarHack(function(success)
-                                    if success then
-                                        ExchangeSuccessSafe()
-                                    else
-                                        ExchangeFailSafe(safe)
+                            if Config.Hacktype == 'mHacking' then 
+                                TriggerServerEvent("mz-storerobbery:server:setSafeStatus", currentSafe)
+                                TriggerEvent('animations:client:EmoteCommandStart', {"kneel"})
+                                if Config.psdispatch then 
+                                    TriggerEvent('mz-storerobbery:client:mzSafeHit')
+                                end 
+                                TriggerServerEvent("mz-storerobbery:server:ItemRemoval")
+                                if Config.mzskills then
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl8, function(hasskill)
+                                        if hasskill then lvl8 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl7, function(hasskill)
+                                        if hasskill then lvl7 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl6, function(hasskill)
+                                        if hasskill then lvl6 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl5, function(hasskill)
+                                        if hasskill then lvl5 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl4, function(hasskill)
+                                        if hasskill then lvl4 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl3, function(hasskill)
+                                        if hasskill then lvl3 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl2, function(hasskill)
+                                        if hasskill then lvl2 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl1, function(hasskill)
+                                        if hasskill then lvl1 = true end
+                                    end)
+                                    TriggerEvent("mhacking:show") 
+                                    if lvl8 then  
+                                        TriggerEvent("mhacking:start", math.random(Config.mhacklvl8low, Config.mhacklvl8high), Config.mhacklvl8time, HackingSuccessSafe)
+                                    elseif lvl7 then
+                                        TriggerEvent("mhacking:start", math.random(Config.mhacklvl7low, Config.mhacklvl7high), Config.mhacklvl7time, HackingSuccessSafe)
+                                    elseif lvl6 then
+                                        TriggerEvent("mhacking:start", math.random(Config.mhacklvl6low, Config.mhacklvl6high), Config.mhacklvl6time, HackingSuccessSafe)
+                                    elseif lvl5 then 
+                                        TriggerEvent("mhacking:start", math.random(Config.mhacklvl5low, Config.mhacklvl5high), Config.mhacklvl5time, HackingSuccessSafe)
+                                    elseif lvl4 then 
+                                        TriggerEvent("mhacking:start", math.random(Config.mhacklvl4low, Config.mhacklvl4high), Config.mhacklvl4time, HackingSuccessSafe)
+                                    elseif lvl3 then
+                                        TriggerEvent("mhacking:start", math.random(Config.mhacklvl3low, Config.mhacklvl3high), Config.mhacklvl3time, HackingSuccessSafe)
+                                    elseif lvl2 then
+                                        TriggerEvent("mhacking:start", math.random(Config.mhacklvl2low, Config.mhacklvl2high), Config.mhacklvl2time, HackingSuccessSafe)
+                                    elseif lvl1 then 
+                                        TriggerEvent("mhacking:start", math.random(Config.mhacklvl1low, Config.mhacklvl1high), Config.mhacklvl1time, HackingSuccessSafe)
+                                    else 
+                                        TriggerEvent("mhacking:start", math.random(Config.mhacklvl0low, Config.mhacklvl0high), Config.mhacklvl0time, HackingSuccessSafe)
                                     end
-                                end, Config.varhacklvlNOXPblocks, Config.varhacklvlNOXPtime) -- Number of Blocks, Time (seconds)
-                            else
-                                print('You need to configure whether you are using mz-skills or not')
-                            end
-                        elseif Config.Hacktype == 'scrambler' then
-                            TriggerServerEvent("mz-storerobbery:server:setSafeStatus", currentSafe)
-                            TriggerEvent('animations:client:EmoteCommandStart', {"kneel"})
-                            TriggerServerEvent("mz-storerobbery:server:ItemRemoval")
-                            if Config.mzskills then
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl8, function(hasskill)
-                                    if hasskill then lvl8 = true end
-                                end)
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl7, function(hasskill)
-                                    if hasskill then lvl7 = true end
-                                end)
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl6, function(hasskill)
-                                    if hasskill then lvl6 = true end
-                                end)
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl5, function(hasskill)
-                                    if hasskill then lvl5 = true end
-                                end)
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl4, function(hasskill)
-                                    if hasskill then lvl4 = true end
-                                end)
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl3, function(hasskill)
-                                    if hasskill then lvl3 = true end
-                                end)
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl2, function(hasskill)
-                                    if hasskill then lvl2 = true end
-                                end)
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl1, function(hasskill)
-                                    if hasskill then lvl1 = true end
-                                end)
-                                if lvl8 then  
-                                    exports['ps-ui']:Scrambler(function(success)
-                                        if success then
-                                            ExchangeSuccessSafe()
-                                        else
-                                            ExchangeFailSafe(safe)
-                                        end
-                                    end, "numeric", 18, 0) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
-                                elseif lvl7 then 
-                                    exports['ps-ui']:Scrambler(function(success)
-                                        if success then
-                                            ExchangeSuccessSafe()
-                                        else
-                                            ExchangeFailSafe(safe)
-                                        end
-                                    end, "alphabet", 17, 0) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
-                                elseif lvl6 then 
-                                    exports['ps-ui']:Scrambler(function(success)
-                                        if success then
-                                            ExchangeSuccessSafe()
-                                        else
-                                            ExchangeFailSafe(safe)
-                                        end
-                                    end, "alphanumeric", 16, 0) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
-                                elseif lvl5 then 
-                                    exports['ps-ui']:Scrambler(function(success)
-                                        if success then
-                                            ExchangeSuccessSafe()
-                                        else
-                                            ExchangeFailSafe(safe)
-                                        end
-                                    end, "greek", 15, 1) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
-                                elseif lvl4 then 
-                                    exports['ps-ui']:Scrambler(function(success)
-                                        if success then
-                                            ExchangeSuccessSafe()
-                                        else
-                                            ExchangeFailSafe(safe)
-                                        end
-                                    end, "braille", 15, 1) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
-                                elseif lvl3 then 
-                                    exports['ps-ui']:Scrambler(function(success)
-                                        if success then
-                                            ExchangeSuccessSafe()
-                                        else
-                                            ExchangeFailSafe(safe)
-                                        end
-                                    end, "runes", 14, 1) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )\
-                                elseif lvl2 then 
-                                    exports['ps-ui']:Scrambler(function(success)
-                                        if success then
-                                            ExchangeSuccessSafe()
-                                        else
-                                            ExchangeFailSafe(safe)
-                                        end
-                                    end, "greek", 13, 1) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
-                                elseif lvl1 then 
-                                    exports['ps-ui']:Scrambler(function(success)
-                                        if success then
-                                            ExchangeSuccessSafe()
-                                        else
-                                            ExchangeFailSafe(safe)
-                                        end
-                                    end, "braille", 12, 1) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
-                                elseif lvl0 then 
-                                    exports['ps-ui']:Scrambler(function(success)
-                                        if success then
-                                            ExchangeSuccessSafe()
-                                        else
-                                            ExchangeFailSafe(safe)
-                                        end
-                                    end, "runes", 12, 1) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
+                                elseif not Config.mzskills then
+                                    TriggerEvent("mhacking:show") 
+                                    TriggerEvent("mhacking:start", math.random(Config.mhacklvlNOXPlow, Config.mhacklvlNOXPlow), Config.mhacklvlNOXPtime, HackingSuccessSafe)
+                                else
+                                    print('You need to configure whether you are using mz-skills or not - see Config.mzskills')
                                 end
-                            elseif not Config.mzskills then
-                                exports['ps-ui']:Scrambler(function(success)
-                                    if success then
-                                        ExchangeSuccessSafe()
-                                    else
-                                        ExchangeFailSafe(safe)
+                            elseif Config.Hacktype == 'varHack' then
+                                TriggerServerEvent("mz-storerobbery:server:setSafeStatus", currentSafe)
+                                TriggerEvent('animations:client:EmoteCommandStart', {"kneel"})
+                                TriggerServerEvent("mz-storerobbery:server:ItemRemoval")
+                                if Config.mzskills then
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl8, function(hasskill)
+                                        if hasskill then lvl8 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl7, function(hasskill)
+                                        if hasskill then lvl7 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl6, function(hasskill)
+                                        if hasskill then lvl6 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl5, function(hasskill)
+                                        if hasskill then lvl5 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl4, function(hasskill)
+                                        if hasskill then lvl4 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl3, function(hasskill)
+                                        if hasskill then lvl3 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl2, function(hasskill)
+                                        if hasskill then lvl2 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl1, function(hasskill)
+                                        if hasskill then lvl1 = true end
+                                    end)
+                                    Wait(500)
+                                    if lvl8 then
+                                        exports['ps-ui']:VarHack(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, Config.varhacklvl8blocks, Config.varhacklvl8time) -- Number of Blocks, Time (seconds)
+                                    elseif lvl7 then 
+                                        exports['ps-ui']:VarHack(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, Config.varhacklvl7blocks, Config.varhacklvl7time) -- Number of Blocks, Time (seconds)
+                                    elseif lvl6 then 
+                                        exports['ps-ui']:VarHack(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, Config.varhacklvl6blocks, Config.varhacklvl6time) -- Number of Blocks, Time (seconds)
+                                    elseif lvl5 then 
+                                        exports['ps-ui']:VarHack(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, Config.varhacklvl5blocks, Config.varhacklvl5time) -- Number of Blocks, Time (seconds)
+                                    elseif lvl4 then 
+                                        exports['ps-ui']:VarHack(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, Config.varhacklvl4blocks, Config.varhacklvl4time) -- Number of Blocks, Time (seconds)
+                                    elseif lvl3 then 
+                                        exports['ps-ui']:VarHack(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, Config.varhacklvl3blocks, Config.varhacklvl3time) -- Number of Blocks, Time (seconds)
+                                    elseif lvl2 then 
+                                        exports['ps-ui']:VarHack(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, Config.varhacklvl2blocks, Config.varhacklvl2time) -- Number of Blocks, Time (seconds)
+                                    elseif lvl1 then 
+                                        exports['ps-ui']:VarHack(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, Config.varhacklvl1blocks, Config.varhacklvl1time) -- Number of Blocks, Time (seconds)
+                                    elseif lvl0 then 
+                                        exports['ps-ui']:VarHack(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, Config.varhacklvl0blocks, Config.varhacklvl0time) -- Number of Blocks, Time (seconds)
                                     end
-                                end, "alphanumeric", 15, 1) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
-                            else
-                                print('You need to configure whether you are using mz-skills or not')
-                            end        
-                        elseif Config.Hacktype == 'maze' then
-                            TriggerServerEvent("mz-storerobbery:server:setSafeStatus", currentSafe)
-                            TriggerEvent('animations:client:EmoteCommandStart', {"kneel"})
-                            TriggerServerEvent("mz-storerobbery:server:ItemRemoval")
-                            if Config.mzskills then
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl8, function(hasskill)
-                                    if hasskill then lvl8 = true end
-                                end)
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl7, function(hasskill)
-                                    if hasskill then lvl7 = true end
-                                end)
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl6, function(hasskill)
-                                    if hasskill then lvl6 = true end
-                                end)
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl5, function(hasskill)
-                                    if hasskill then lvl5 = true end
-                                end)
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl4, function(hasskill)
-                                    if hasskill then lvl4 = true end
-                                end)
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl3, function(hasskill)
-                                    if hasskill then lvl3 = true end
-                                end)
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl2, function(hasskill)
-                                    if hasskill then lvl2 = true end
-                                end)
-                                exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl1, function(hasskill)
-                                    if hasskill then lvl1 = true end
-                                end)
-                                Wait(500)
-                                if lvl8 then
-                                    exports['ps-ui']:Maze(function(success)
+                                elseif not Config.mzskills then
+                                    exports['ps-ui']:VarHack(function(success)
                                         if success then
                                             ExchangeSuccessSafe()
                                         else
                                             ExchangeFailSafe(safe)
                                         end
-                                    end, 20) -- Hack Time Limit
-                                elseif lvl7 then 
-                                    exports['ps-ui']:Maze(function(success)
+                                    end, Config.varhacklvlNOXPblocks, Config.varhacklvlNOXPtime) -- Number of Blocks, Time (seconds)
+                                else
+                                    print('You need to configure whether you are using mz-skills or not')
+                                end
+                            elseif Config.Hacktype == 'scrambler' then
+                                TriggerServerEvent("mz-storerobbery:server:setSafeStatus", currentSafe)
+                                TriggerEvent('animations:client:EmoteCommandStart', {"kneel"})
+                                TriggerServerEvent("mz-storerobbery:server:ItemRemoval")
+                                if Config.mzskills then
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl8, function(hasskill)
+                                        if hasskill then lvl8 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl7, function(hasskill)
+                                        if hasskill then lvl7 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl6, function(hasskill)
+                                        if hasskill then lvl6 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl5, function(hasskill)
+                                        if hasskill then lvl5 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl4, function(hasskill)
+                                        if hasskill then lvl4 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl3, function(hasskill)
+                                        if hasskill then lvl3 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl2, function(hasskill)
+                                        if hasskill then lvl2 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl1, function(hasskill)
+                                        if hasskill then lvl1 = true end
+                                    end)
+                                    if lvl8 then  
+                                        exports['ps-ui']:Scrambler(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, "numeric", 18, 0) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
+                                    elseif lvl7 then 
+                                        exports['ps-ui']:Scrambler(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, "alphabet", 17, 0) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
+                                    elseif lvl6 then 
+                                        exports['ps-ui']:Scrambler(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, "alphanumeric", 16, 0) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
+                                    elseif lvl5 then 
+                                        exports['ps-ui']:Scrambler(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, "greek", 15, 1) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
+                                    elseif lvl4 then 
+                                        exports['ps-ui']:Scrambler(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, "braille", 15, 1) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
+                                    elseif lvl3 then 
+                                        exports['ps-ui']:Scrambler(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, "runes", 14, 1) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )\
+                                    elseif lvl2 then 
+                                        exports['ps-ui']:Scrambler(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, "greek", 13, 1) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
+                                    elseif lvl1 then 
+                                        exports['ps-ui']:Scrambler(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, "braille", 12, 1) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
+                                    elseif lvl0 then 
+                                        exports['ps-ui']:Scrambler(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, "runes", 12, 1) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
+                                    end
+                                elseif not Config.mzskills then
+                                    exports['ps-ui']:Scrambler(function(success)
                                         if success then
                                             ExchangeSuccessSafe()
                                         else
                                             ExchangeFailSafe(safe)
                                         end
-                                    end, 18) -- Hack Time Limit
-                                elseif lvl6 then 
-                                    exports['ps-ui']:Maze(function(success)
-                                        if success then
-                                            ExchangeSuccessSafe()
-                                        else
-                                            ExchangeFailSafe(safe)
-                                        end
-                                    end, 16) -- Hack Time Limit
-                                elseif lvl5 then 
+                                    end, "alphanumeric", 15, 1) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
+                                else
+                                    print('You need to configure whether you are using mz-skills or not')
+                                end        
+                            elseif Config.Hacktype == 'maze' then
+                                TriggerServerEvent("mz-storerobbery:server:setSafeStatus", currentSafe)
+                                TriggerEvent('animations:client:EmoteCommandStart', {"kneel"})
+                                TriggerServerEvent("mz-storerobbery:server:ItemRemoval")
+                                if Config.mzskills then
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl8, function(hasskill)
+                                        if hasskill then lvl8 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl7, function(hasskill)
+                                        if hasskill then lvl7 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl6, function(hasskill)
+                                        if hasskill then lvl6 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl5, function(hasskill)
+                                        if hasskill then lvl5 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl4, function(hasskill)
+                                        if hasskill then lvl4 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl3, function(hasskill)
+                                        if hasskill then lvl3 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl2, function(hasskill)
+                                        if hasskill then lvl2 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl1, function(hasskill)
+                                        if hasskill then lvl1 = true end
+                                    end)
+                                    Wait(500)
+                                    if lvl8 then
+                                        exports['ps-ui']:Maze(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, 20) -- Hack Time Limit
+                                    elseif lvl7 then 
+                                        exports['ps-ui']:Maze(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, 18) -- Hack Time Limit
+                                    elseif lvl6 then 
+                                        exports['ps-ui']:Maze(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, 16) -- Hack Time Limit
+                                    elseif lvl5 then 
+                                        exports['ps-ui']:Maze(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, 15) -- Hack Time Limit
+                                    elseif lvl4 then 
+                                        exports['ps-ui']:Maze(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, 14) -- Hack Time Limit
+                                    elseif lvl3 then 
+                                        exports['ps-ui']:Maze(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, 13) -- Hack Time Limit
+                                    elseif lvl2 then 
+                                        exports['ps-ui']:Maze(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, 12) -- Hack Time Limit
+                                    elseif lvl1 then 
+                                        exports['ps-ui']:Maze(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, 11) -- Hack Time Limit
+                                    elseif lvl0 then 
+                                        exports['ps-ui']:Maze(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, 11) -- Hack Time Limit
+                                    end
+                                elseif not Config.mzskills then
                                     exports['ps-ui']:Maze(function(success)
                                         if success then
                                             ExchangeSuccessSafe()
@@ -1016,99 +1244,513 @@ function StealfromSafe(safe)
                                             ExchangeFailSafe(safe)
                                         end
                                     end, 15) -- Hack Time Limit
-                                elseif lvl4 then 
-                                    exports['ps-ui']:Maze(function(success)
-                                        if success then
-                                            ExchangeSuccessSafe()
-                                        else
-                                            ExchangeFailSafe(safe)
-                                        end
-                                    end, 14) -- Hack Time Limit
-                                elseif lvl3 then 
-                                    exports['ps-ui']:Maze(function(success)
-                                        if success then
-                                            ExchangeSuccessSafe()
-                                        else
-                                            ExchangeFailSafe(safe)
-                                        end
-                                    end, 13) -- Hack Time Limit
-                                elseif lvl2 then 
-                                    exports['ps-ui']:Maze(function(success)
-                                        if success then
-                                            ExchangeSuccessSafe()
-                                        else
-                                            ExchangeFailSafe(safe)
-                                        end
-                                    end, 12) -- Hack Time Limit
-                                elseif lvl1 then 
-                                    exports['ps-ui']:Maze(function(success)
-                                        if success then
-                                            ExchangeSuccessSafe()
-                                        else
-                                            ExchangeFailSafe(safe)
-                                        end
-                                    end, 11) -- Hack Time Limit
-                                elseif lvl0 then 
-                                    exports['ps-ui']:Maze(function(success)
-                                        if success then
-                                            ExchangeSuccessSafe()
-                                        else
-                                            ExchangeFailSafe(safe)
-                                        end
-                                    end, 11) -- Hack Time Limit
-                                end
-                            elseif not Config.mzskills then
-                                exports['ps-ui']:Maze(function(success)
-                                    if success then
-                                        ExchangeSuccessSafe()
-                                    else
-                                        ExchangeFailSafe(safe)
-                                    end
-                                end, 15) -- Hack Time Limit
-                            else
-                                print('You need to configure whether you are using mz-skills or not')
-                            end      
-                        end
-                    else
-                        local requiredItems = {
-                        [1] = {name = QBCore.Shared.Items[Config.SafeReqItem]["name"], image = QBCore.Shared.Items[Config.SafeReqItem]["image"]},
-                        }
-                        if Config.NotifyType == 'qb' then
-                            QBCore.Functions.Notify('You need a Red USB to breach the safe...', "error", 3500)
-                        elseif Config.NotifyType == "okok" then
-                            exports['okokNotify']:Alert("RED USB REQUIRED", "You need a Red USB to breach the safe...", 3500, "error")
+                                else
+                                    print('You need to configure whether you are using mz-skills or not')
+                                end      
+                            end
+                        else
+                            local requiredItems = {
+                            [1] = {name = QBCore.Shared.Items[Config.SafeReqItem]["name"], image = QBCore.Shared.Items[Config.SafeReqItem]["image"]},
+                            }
+                            if Config.NotifyType == 'qb' then
+                                QBCore.Functions.Notify('You need a Red USB to breach the safe...', "error", 3500)
+                            elseif Config.NotifyType == "okok" then
+                                exports['okokNotify']:Alert("RED USB REQUIRED", "You need a Red USB to breach the safe...", 3500, "error")
+                            end 
+                            TriggerEvent('inventory:client:requiredItems', requiredItems, true)
+                            Wait(3500)
+                            TriggerEvent('inventory:client:requiredItems', requiredItems, false)
                         end 
-                        TriggerEvent('inventory:client:requiredItems', requiredItems, true)
-                        Wait(3500)
-                        TriggerEvent('inventory:client:requiredItems', requiredItems, false)
-                    end 
-                else
-                    if Config.psdispatch then 
-                        TriggerEvent('mz-storerobbery:client:mzLiquorHit')
-                    end
-                    TriggerServerEvent('mz-storerobbery:server:setSafeStatus', currentSafe)
-                    QBCore.Functions.TriggerCallback('mz-storerobbery:server:getPadlockCombination', function(combination)
-                        TriggerEvent("SafeCracker:StartMinigame", combination)
-                    end, safe)
-                end
-                if not Config.psdispatch then 
-                    if not copsCalled then
-                        pos = GetEntityCoords(PlayerPedId())
-                        local s1, s2 = GetStreetNameAtCoord(pos.x, pos.y, pos.z)
-                        local street1 = GetStreetNameFromHashKey(s1)
-                        local street2 = GetStreetNameFromHashKey(s2)
-                        local streetLabel = street1
-                        if street2 ~= nil then
-                            streetLabel = streetLabel .. " " .. street2
+                    else
+                        if Config.psdispatch then 
+                            TriggerEvent('mz-storerobbery:client:mzLiquorHit')
                         end
-                        TriggerServerEvent("mz-storerobbery:server:callCops", "safe", currentSafe, streetLabel, pos)
-                        copsCalled = true
+                        TriggerServerEvent('mz-storerobbery:server:setSafeStatus', currentSafe)
+                        QBCore.Functions.TriggerCallback('mz-storerobbery:server:getPadlockCombination', function(combination)
+                            TriggerEvent("SafeCracker:StartMinigame", combination)
+                        end, safe)
                     end
+                    if not Config.psdispatch then 
+                        if not copsCalled then
+                            pos = GetEntityCoords(PlayerPedId())
+                            local s1, s2 = GetStreetNameAtCoord(pos.x, pos.y, pos.z)
+                            local street1 = GetStreetNameFromHashKey(s1)
+                            local street2 = GetStreetNameFromHashKey(s2)
+                            local streetLabel = street1
+                            if street2 ~= nil then
+                                streetLabel = streetLabel .. " " .. street2
+                            end
+                            TriggerServerEvent("mz-storerobbery:server:callCops", "safe", currentSafe, streetLabel, pos)
+                            copsCalled = true
+                        end
+                    end
+                else
+                    QBCore.Functions.Notify("Not Enough Police (".. Config.MinimumStoreRobberyPolice .." Required)", "error")
                 end
-            else
-                QBCore.Functions.Notify("Not Enough Police (".. Config.MinimumStoreRobberyPolice .." Required)", "error")
             end
-        end 
+        else
+            if not Config.SafesTargetGabz[safe].robbed then
+                if cops >= Config.MinimumStoreRobberyPolice then
+                    currentSafe = safe
+                    print(currentSafe)
+                    if math.random(1, 100) <= Config.PrintChanceSafe and not IsWearingHandshoes() then
+                        TriggerServerEvent("evidence:server:CreateFingerDrop", pos)
+                    end
+                    if Config.SafesTargetGabz[safe].type == "keypad" then
+                        if QBCore.Functions.HasItem(Config.SafeReqItem) then
+                            TriggerServerEvent('mz-storerobbery:server:setSafeStatus', currentSafe)
+                            if Config.mzskills then 
+                                local lvl8 = false
+                                local lvl7 = false
+                                local lvl6 = false
+                                local lvl5 = false
+                                local lvl4 = false
+                                local lvl3 = false
+                                local lvl2 = false
+                                local lvl1 = false
+                                local lvl0 = false
+                            end 
+                            if Config.Hacktype == 'mHacking' then 
+                                TriggerServerEvent("mz-storerobbery:server:setSafeStatus", currentSafe)
+                                TriggerEvent('animations:client:EmoteCommandStart', {"kneel"})
+                                if Config.psdispatch then 
+                                    TriggerEvent('mz-storerobbery:client:mzSafeHit')
+                                end 
+                                TriggerServerEvent("mz-storerobbery:server:ItemRemoval")
+                                if Config.mzskills then
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl8, function(hasskill)
+                                        if hasskill then lvl8 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl7, function(hasskill)
+                                        if hasskill then lvl7 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl6, function(hasskill)
+                                        if hasskill then lvl6 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl5, function(hasskill)
+                                        if hasskill then lvl5 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl4, function(hasskill)
+                                        if hasskill then lvl4 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl3, function(hasskill)
+                                        if hasskill then lvl3 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl2, function(hasskill)
+                                        if hasskill then lvl2 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl1, function(hasskill)
+                                        if hasskill then lvl1 = true end
+                                    end)
+                                    TriggerEvent("mhacking:show") 
+                                    if lvl8 then  
+                                        TriggerEvent("mhacking:start", math.random(Config.mhacklvl8low, Config.mhacklvl8high), Config.mhacklvl8time, HackingSuccessSafe)
+                                    elseif lvl7 then
+                                        TriggerEvent("mhacking:start", math.random(Config.mhacklvl7low, Config.mhacklvl7high), Config.mhacklvl7time, HackingSuccessSafe)
+                                    elseif lvl6 then
+                                        TriggerEvent("mhacking:start", math.random(Config.mhacklvl6low, Config.mhacklvl6high), Config.mhacklvl6time, HackingSuccessSafe)
+                                    elseif lvl5 then 
+                                        TriggerEvent("mhacking:start", math.random(Config.mhacklvl5low, Config.mhacklvl5high), Config.mhacklvl5time, HackingSuccessSafe)
+                                    elseif lvl4 then 
+                                        TriggerEvent("mhacking:start", math.random(Config.mhacklvl4low, Config.mhacklvl4high), Config.mhacklvl4time, HackingSuccessSafe)
+                                    elseif lvl3 then
+                                        TriggerEvent("mhacking:start", math.random(Config.mhacklvl3low, Config.mhacklvl3high), Config.mhacklvl3time, HackingSuccessSafe)
+                                    elseif lvl2 then
+                                        TriggerEvent("mhacking:start", math.random(Config.mhacklvl2low, Config.mhacklvl2high), Config.mhacklvl2time, HackingSuccessSafe)
+                                    elseif lvl1 then 
+                                        TriggerEvent("mhacking:start", math.random(Config.mhacklvl1low, Config.mhacklvl1high), Config.mhacklvl1time, HackingSuccessSafe)
+                                    else 
+                                        TriggerEvent("mhacking:start", math.random(Config.mhacklvl0low, Config.mhacklvl0high), Config.mhacklvl0time, HackingSuccessSafe)
+                                    end
+                                elseif not Config.mzskills then
+                                    TriggerEvent("mhacking:show") 
+                                    TriggerEvent("mhacking:start", math.random(Config.mhacklvlNOXPlow, Config.mhacklvlNOXPlow), Config.mhacklvlNOXPtime, HackingSuccessSafe)
+                                else
+                                    print('You need to configure whether you are using mz-skills or not - see Config.mzskills')
+                                end
+                            elseif Config.Hacktype == 'varHack' then
+                                TriggerServerEvent("mz-storerobbery:server:setSafeStatus", currentSafe)
+                                TriggerEvent('animations:client:EmoteCommandStart', {"kneel"})
+                                TriggerServerEvent("mz-storerobbery:server:ItemRemoval")
+                                if Config.mzskills then
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl8, function(hasskill)
+                                        if hasskill then lvl8 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl7, function(hasskill)
+                                        if hasskill then lvl7 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl6, function(hasskill)
+                                        if hasskill then lvl6 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl5, function(hasskill)
+                                        if hasskill then lvl5 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl4, function(hasskill)
+                                        if hasskill then lvl4 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl3, function(hasskill)
+                                        if hasskill then lvl3 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl2, function(hasskill)
+                                        if hasskill then lvl2 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl1, function(hasskill)
+                                        if hasskill then lvl1 = true end
+                                    end)
+                                    Wait(500)
+                                    if lvl8 then
+                                        exports['ps-ui']:VarHack(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, Config.varhacklvl8blocks, Config.varhacklvl8time) -- Number of Blocks, Time (seconds)
+                                    elseif lvl7 then 
+                                        exports['ps-ui']:VarHack(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, Config.varhacklvl7blocks, Config.varhacklvl7time) -- Number of Blocks, Time (seconds)
+                                    elseif lvl6 then 
+                                        exports['ps-ui']:VarHack(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, Config.varhacklvl6blocks, Config.varhacklvl6time) -- Number of Blocks, Time (seconds)
+                                    elseif lvl5 then 
+                                        exports['ps-ui']:VarHack(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, Config.varhacklvl5blocks, Config.varhacklvl5time) -- Number of Blocks, Time (seconds)
+                                    elseif lvl4 then 
+                                        exports['ps-ui']:VarHack(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, Config.varhacklvl4blocks, Config.varhacklvl4time) -- Number of Blocks, Time (seconds)
+                                    elseif lvl3 then 
+                                        exports['ps-ui']:VarHack(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, Config.varhacklvl3blocks, Config.varhacklvl3time) -- Number of Blocks, Time (seconds)
+                                    elseif lvl2 then 
+                                        exports['ps-ui']:VarHack(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, Config.varhacklvl2blocks, Config.varhacklvl2time) -- Number of Blocks, Time (seconds)
+                                    elseif lvl1 then 
+                                        exports['ps-ui']:VarHack(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, Config.varhacklvl1blocks, Config.varhacklvl1time) -- Number of Blocks, Time (seconds)
+                                    elseif lvl0 then 
+                                        exports['ps-ui']:VarHack(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, Config.varhacklvl0blocks, Config.varhacklvl0time) -- Number of Blocks, Time (seconds)
+                                    end
+                                elseif not Config.mzskills then
+                                    exports['ps-ui']:VarHack(function(success)
+                                        if success then
+                                            ExchangeSuccessSafe()
+                                        else
+                                            ExchangeFailSafe(safe)
+                                        end
+                                    end, Config.varhacklvlNOXPblocks, Config.varhacklvlNOXPtime) -- Number of Blocks, Time (seconds)
+                                else
+                                    print('You need to configure whether you are using mz-skills or not')
+                                end
+                            elseif Config.Hacktype == 'scrambler' then
+                                TriggerServerEvent("mz-storerobbery:server:setSafeStatus", currentSafe)
+                                TriggerEvent('animations:client:EmoteCommandStart', {"kneel"})
+                                TriggerServerEvent("mz-storerobbery:server:ItemRemoval")
+                                if Config.mzskills then
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl8, function(hasskill)
+                                        if hasskill then lvl8 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl7, function(hasskill)
+                                        if hasskill then lvl7 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl6, function(hasskill)
+                                        if hasskill then lvl6 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl5, function(hasskill)
+                                        if hasskill then lvl5 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl4, function(hasskill)
+                                        if hasskill then lvl4 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl3, function(hasskill)
+                                        if hasskill then lvl3 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl2, function(hasskill)
+                                        if hasskill then lvl2 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl1, function(hasskill)
+                                        if hasskill then lvl1 = true end
+                                    end)
+                                    if lvl8 then  
+                                        exports['ps-ui']:Scrambler(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, "numeric", 18, 0) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
+                                    elseif lvl7 then 
+                                        exports['ps-ui']:Scrambler(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, "alphabet", 17, 0) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
+                                    elseif lvl6 then 
+                                        exports['ps-ui']:Scrambler(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, "alphanumeric", 16, 0) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
+                                    elseif lvl5 then 
+                                        exports['ps-ui']:Scrambler(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, "greek", 15, 1) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
+                                    elseif lvl4 then 
+                                        exports['ps-ui']:Scrambler(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, "braille", 15, 1) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
+                                    elseif lvl3 then 
+                                        exports['ps-ui']:Scrambler(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, "runes", 14, 1) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )\
+                                    elseif lvl2 then 
+                                        exports['ps-ui']:Scrambler(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, "greek", 13, 1) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
+                                    elseif lvl1 then 
+                                        exports['ps-ui']:Scrambler(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, "braille", 12, 1) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
+                                    elseif lvl0 then 
+                                        exports['ps-ui']:Scrambler(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, "runes", 12, 1) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
+                                    end
+                                elseif not Config.mzskills then
+                                    exports['ps-ui']:Scrambler(function(success)
+                                        if success then
+                                            ExchangeSuccessSafe()
+                                        else
+                                            ExchangeFailSafe(safe)
+                                        end
+                                    end, "alphanumeric", 15, 1) -- Type (alphabet, numeric, alphanumeric, greek, braille, runes), Time (Seconds), Mirrored (0: Normal, 1: Normal + Mirrored 2: Mirrored only )
+                                else
+                                    print('You need to configure whether you are using mz-skills or not')
+                                end        
+                            elseif Config.Hacktype == 'maze' then
+                                TriggerServerEvent("mz-storerobbery:server:setSafeStatus", currentSafe)
+                                TriggerEvent('animations:client:EmoteCommandStart', {"kneel"})
+                                TriggerServerEvent("mz-storerobbery:server:ItemRemoval")
+                                if Config.mzskills then
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl8, function(hasskill)
+                                        if hasskill then lvl8 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl7, function(hasskill)
+                                        if hasskill then lvl7 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl6, function(hasskill)
+                                        if hasskill then lvl6 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl5, function(hasskill)
+                                        if hasskill then lvl5 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl4, function(hasskill)
+                                        if hasskill then lvl4 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl3, function(hasskill)
+                                        if hasskill then lvl3 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl2, function(hasskill)
+                                        if hasskill then lvl2 = true end
+                                    end)
+                                    exports["mz-skills"]:CheckSkill(Config.HackXPSkill, Config.HackXPlvl1, function(hasskill)
+                                        if hasskill then lvl1 = true end
+                                    end)
+                                    Wait(500)
+                                    if lvl8 then
+                                        exports['ps-ui']:Maze(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, 20) -- Hack Time Limit
+                                    elseif lvl7 then 
+                                        exports['ps-ui']:Maze(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, 18) -- Hack Time Limit
+                                    elseif lvl6 then 
+                                        exports['ps-ui']:Maze(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, 16) -- Hack Time Limit
+                                    elseif lvl5 then 
+                                        exports['ps-ui']:Maze(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, 15) -- Hack Time Limit
+                                    elseif lvl4 then 
+                                        exports['ps-ui']:Maze(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, 14) -- Hack Time Limit
+                                    elseif lvl3 then 
+                                        exports['ps-ui']:Maze(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, 13) -- Hack Time Limit
+                                    elseif lvl2 then 
+                                        exports['ps-ui']:Maze(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, 12) -- Hack Time Limit
+                                    elseif lvl1 then 
+                                        exports['ps-ui']:Maze(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, 11) -- Hack Time Limit
+                                    elseif lvl0 then 
+                                        exports['ps-ui']:Maze(function(success)
+                                            if success then
+                                                ExchangeSuccessSafe()
+                                            else
+                                                ExchangeFailSafe(safe)
+                                            end
+                                        end, 11) -- Hack Time Limit
+                                    end
+                                elseif not Config.mzskills then
+                                    exports['ps-ui']:Maze(function(success)
+                                        if success then
+                                            ExchangeSuccessSafe()
+                                        else
+                                            ExchangeFailSafe(safe)
+                                        end
+                                    end, 15) -- Hack Time Limit
+                                else
+                                    print('You need to configure whether you are using mz-skills or not')
+                                end      
+                            end
+                        else
+                            local requiredItems = {
+                            [1] = {name = QBCore.Shared.Items[Config.SafeReqItem]["name"], image = QBCore.Shared.Items[Config.SafeReqItem]["image"]},
+                            }
+                            if Config.NotifyType == 'qb' then
+                                QBCore.Functions.Notify('You need a Red USB to breach the safe...', "error", 3500)
+                            elseif Config.NotifyType == "okok" then
+                                exports['okokNotify']:Alert("RED USB REQUIRED", "You need a Red USB to breach the safe...", 3500, "error")
+                            end 
+                            TriggerEvent('inventory:client:requiredItems', requiredItems, true)
+                            Wait(3500)
+                            TriggerEvent('inventory:client:requiredItems', requiredItems, false)
+                        end 
+                    else
+                        if Config.psdispatch then 
+                            TriggerEvent('mz-storerobbery:client:mzLiquorHit')
+                        end
+                        TriggerServerEvent('mz-storerobbery:server:setSafeStatus', currentSafe)
+                        QBCore.Functions.TriggerCallback('mz-storerobbery:server:getPadlockCombination', function(combination)
+                            TriggerEvent("SafeCracker:StartMinigame", combination)
+                        end, safe)
+                    end
+                    if not Config.psdispatch then 
+                        if not copsCalled then
+                            pos = GetEntityCoords(PlayerPedId())
+                            local s1, s2 = GetStreetNameAtCoord(pos.x, pos.y, pos.z)
+                            local street1 = GetStreetNameFromHashKey(s1)
+                            local street2 = GetStreetNameFromHashKey(s2)
+                            local streetLabel = street1
+                            if street2 ~= nil then
+                                streetLabel = streetLabel .. " " .. street2
+                            end
+                            TriggerServerEvent("mz-storerobbery:server:callCops", "safe", currentSafe, streetLabel, pos)
+                            copsCalled = true
+                        end
+                    end
+                else
+                    QBCore.Functions.Notify("Not Enough Police (".. Config.MinimumStoreRobberyPolice .." Required)", "error")
+                end
+            end
+        end   
     end)
 end
 
@@ -1220,47 +1862,91 @@ RegisterNetEvent('SafeCracker:EndMinigame', function(won)
     if currentSafe ~= 0 then
         if won then
             if currentSafe ~= 0 then
-                if not Config.SafesTarget[currentSafe].robbed then
-                    SetNuiFocus(false, false)
-                    TriggerServerEvent("mz-storerobbery:server:setSafeStatus", currentSafe)
-                    local saferobtime = (Config.AlcoholSafeTime * 1000)
-                    QBCore.Functions.Progressbar("deliver_reycle_package", "Raiding safe...", saferobtime, false, true, {
-                        disableMovement = true,
-                        disableCarMovement = true,
-                        disableMouse = false,
-                        disableCombat = true,
-                    }, {
-                        animDict = "anim@heists@ornate_bank@grab_cash",
-                        anim = "grab",
-                        flags = 16,
-                    }, {}, {}, function() -- Done
-                        safeCheck = false 
-                        TriggerServerEvent("mz-storerobbery:server:SafeRewardAlcohol", currentSafe, safeCheck)
-                        safeCheck = true
-                        currentSafe = 0
-                        ClearPedTasks(PlayerPedId())
-                        Wait(1000)
-                        if Config.mzskills then 
-                            local BetterXP = math.random(Config.HeistXPlow, Config.HeistXPhigh)
-                            local hackerchance = math.random(1, 10)
-                            if hackerchance > 8 then
-                                chance = BetterXP
-                            elseif hackerchance < 9 and hackerchance > 6 then
-                                chance = Config.HeistXPmid
-                            else
-                                chance = Config.HeistXPlow
+                if not Config.SafesTargetGabz then 
+                    if not Config.SafesTarget[currentSafe].robbed then
+                        SetNuiFocus(false, false)
+                        TriggerServerEvent("mz-storerobbery:server:setSafeStatus", currentSafe)
+                        local saferobtime = (Config.AlcoholSafeTime * 1000)
+                        QBCore.Functions.Progressbar("deliver_reycle_package", "Raiding safe...", saferobtime, false, true, {
+                            disableMovement = true,
+                            disableCarMovement = true,
+                            disableMouse = false,
+                            disableCombat = true,
+                        }, {
+                            animDict = "anim@heists@ornate_bank@grab_cash",
+                            anim = "grab",
+                            flags = 16,
+                        }, {}, {}, function() -- Done
+                            safeCheck = false 
+                            TriggerServerEvent("mz-storerobbery:server:SafeRewardAlcohol", currentSafe, safeCheck)
+                            safeCheck = true
+                            currentSafe = 0
+                            ClearPedTasks(PlayerPedId())
+                            Wait(1000)
+                            if Config.mzskills then 
+                                local BetterXP = math.random(Config.HeistXPlow, Config.HeistXPhigh)
+                                local hackerchance = math.random(1, 10)
+                                if hackerchance > 8 then
+                                    chance = BetterXP
+                                elseif hackerchance < 9 and hackerchance > 6 then
+                                    chance = Config.HeistXPmid
+                                else
+                                    chance = Config.HeistXPlow
+                                end
+                                exports["mz-skills"]:UpdateSkill(Config.CriminalXPSkill, chance)
                             end
-                            exports["mz-skills"]:UpdateSkill(Config.CriminalXPSkill, chance)
-                        end
-                    end, function() -- Cancel
-                        ClearPedTasks(PlayerPedId())
-                        if Config.NotifyType == 'qb' then
-                            QBCore.Functions.Notify('Process Cancelled', "error", 3500)
-                        elseif Config.NotifyType == "okok" then
-                            exports['okokNotify']:Alert("TASK STOPPED", "Process Cancelled", 3500, "error")
-                        end 
-                    end)
-                end
+                        end, function() -- Cancel
+                            ClearPedTasks(PlayerPedId())
+                            if Config.NotifyType == 'qb' then
+                                QBCore.Functions.Notify('Process Cancelled', "error", 3500)
+                            elseif Config.NotifyType == "okok" then
+                                exports['okokNotify']:Alert("TASK STOPPED", "Process Cancelled", 3500, "error")
+                            end 
+                        end)
+                    end
+                else
+                    if not Config.SafesTargetGabz[currentSafe].robbed then
+                        SetNuiFocus(false, false)
+                        TriggerServerEvent("mz-storerobbery:server:setSafeStatus", currentSafe)
+                        local saferobtime = (Config.AlcoholSafeTime * 1000)
+                        QBCore.Functions.Progressbar("deliver_reycle_package", "Raiding safe...", saferobtime, false, true, {
+                            disableMovement = true,
+                            disableCarMovement = true,
+                            disableMouse = false,
+                            disableCombat = true,
+                        }, {
+                            animDict = "anim@heists@ornate_bank@grab_cash",
+                            anim = "grab",
+                            flags = 16,
+                        }, {}, {}, function() -- Done
+                            safeCheck = false 
+                            TriggerServerEvent("mz-storerobbery:server:SafeRewardAlcohol", currentSafe, safeCheck)
+                            safeCheck = true
+                            currentSafe = 0
+                            ClearPedTasks(PlayerPedId())
+                            Wait(1000)
+                            if Config.mzskills then 
+                                local BetterXP = math.random(Config.HeistXPlow, Config.HeistXPhigh)
+                                local hackerchance = math.random(1, 10)
+                                if hackerchance > 8 then
+                                    chance = BetterXP
+                                elseif hackerchance < 9 and hackerchance > 6 then
+                                    chance = Config.HeistXPmid
+                                else
+                                    chance = Config.HeistXPlow
+                                end
+                                exports["mz-skills"]:UpdateSkill(Config.CriminalXPSkill, chance)
+                            end
+                        end, function() -- Cancel
+                            ClearPedTasks(PlayerPedId())
+                            if Config.NotifyType == 'qb' then
+                                QBCore.Functions.Notify('Process Cancelled', "error", 3500)
+                            elseif Config.NotifyType == "okok" then
+                                exports['okokNotify']:Alert("TASK STOPPED", "Process Cancelled", 3500, "error")
+                            end 
+                        end)
+                    end
+                end 
             end
         end
     end
@@ -1269,10 +1955,18 @@ end)
 
 RegisterNUICallback('PadLockSuccess', function(_, cb)
     if currentSafe ~= 0 then
-        if not Config.SafesTarget[currentSafe].robbed then
-            SendNUIMessage({
-                action = "kekw",
-            })
+        if not Config.SafesTargetGabz then 
+            if not Config.SafesTarget[currentSafe].robbed then
+                SendNUIMessage({
+                    action = "kekw",
+                })
+            end
+        else 
+            if not Config.SafesTargetGabz[currentSafe].robbed then
+                SendNUIMessage({
+                    action = "kekw",
+                })
+            end
         end
     else
         SendNUIMessage({
@@ -1294,11 +1988,19 @@ RegisterNUICallback("CombinationFail", function(_, cb)
 end)
 
 RegisterNetEvent('mz-storerobbery:client:setRegisterStatus', function(k, bool)
-    Config.RegistersTarget[k].robbed = bool
+    if not Config.UseGabz then 
+        Config.RegistersTarget[k].robbed = bool
+    else 
+        Config.RegistersTargetGabz[k].robbed = bool
+    end 
 end)
 
 RegisterNetEvent('mz-storerobbery:client:setSafeStatus', function(safe, bool)
-    Config.SafesTarget[safe].robbed = bool
+    if not Config.SafesTargetGabz then
+        Config.SafesTarget[safe].robbed = bool
+    else 
+        Config.SafesTargetGabz[safe].robbed = bool
+    end 
 end)
 
 RegisterNetEvent('mz-storerobbery:client:robberyCall', function(_, _, _, coords)
@@ -1353,13 +2055,23 @@ CreateThread(function()
             local ped = PlayerPedId()
             local pos = GetEntityCoords(ped)
             local inRange = false
-            for k in pairs(Config.RegistersTarget) do
-                local dist = #(pos - Config.RegistersTarget[k]["coords"].xyz)
-                if dist <= 1.5 and Config.RegistersTarget[k].robbed then
-                    inRange = true
-                    DrawText3Ds(Config.RegistersTarget[k]["coords"].xyz, '~r~Cash register has been emptied...~w~')
+            if not Config.UseGabz then 
+                for k in pairs(Config.RegistersTarget) do
+                    local dist = #(pos - Config.RegistersTarget[k]["coords"].xyz)
+                    if dist <= 1.5 and Config.RegistersTarget[k].robbed then
+                        inRange = true
+                        DrawText3Ds(Config.RegistersTarget[k]["coords"].xyz, '~r~Cash register has been emptied...~w~')
+                    end
                 end
-            end
+            else 
+                for k in pairs(Config.RegistersTargetGabz) do
+                    local dist = #(pos - Config.RegistersTargetGabz[k]["coords"].xyz)
+                    if dist <= 1.5 and Config.RegistersTargetGabz[k].robbed then
+                        inRange = true
+                        DrawText3Ds(Config.RegistersTargetGabz[k]["coords"].xyz, '~r~Cash register has been emptied...~w~')
+                    end
+                end
+            end 
             if not inRange then
                 Wait(2000)
             end

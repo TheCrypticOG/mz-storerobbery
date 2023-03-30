@@ -65,32 +65,61 @@ end)
 -------------------
 
 RegisterNetEvent('mz-storerobbery:server:setRegisterStatus', function(k)
-    Config.RegistersTarget[k].robbed = true
-    Config.RegistersTarget[k].time = Config.resetTime
-    TriggerClientEvent('mz-storerobbery:client:setRegisterStatus', -1, k, true)
-    SetTimeout(Config.resetTime, function()
-        Config.RegistersTarget[k].robbed = false
-        TriggerClientEvent('mz-storerobbery:client:setRegisterStatus', -1, k, false)
-    end)
+    if not Config.UseGabz then 
+        Config.RegistersTarget[k].robbed = true
+        Config.RegistersTarget[k].time = Config.resetTime
+        TriggerClientEvent('mz-storerobbery:client:setRegisterStatus', -1, k, true)
+        SetTimeout(Config.resetTime, function()
+            Config.RegistersTarget[k].robbed = false
+            TriggerClientEvent('mz-storerobbery:client:setRegisterStatus', -1, k, false)
+        end)
+    else
+        Config.RegistersTargetGabz[k].robbed = true
+        Config.RegistersTargetGabz[k].time = Config.resetTime
+        TriggerClientEvent('mz-storerobbery:client:setRegisterStatus', -1, k, true)
+        SetTimeout(Config.resetTime, function()
+            Config.RegistersTargetGabz[k].robbed = false
+            TriggerClientEvent('mz-storerobbery:client:setRegisterStatus', -1, k, false)
+        end) 
+    end 
 end)
 
 RegisterNetEvent('mz-storerobbery:server:setRegisterStatusFailed', function(k)
-    Config.RegistersTarget[k].robbed = false
-    TriggerClientEvent('mz-storerobbery:client:setRegisterStatus', -1, k, false)
+    if not Config.UseGabz then 
+        Config.RegistersTarget[k].robbed = false
+        TriggerClientEvent('mz-storerobbery:client:setRegisterStatus', -1, k, false)
+    else 
+        Config.RegistersTargetGabz[k].robbed = false
+        TriggerClientEvent('mz-storerobbery:client:setRegisterStatus', -1, k, false)
+    end
 end)
 
 RegisterNetEvent('mz-storerobbery:server:setSafeStatus', function(safe)
-    Config.SafesTarget[safe].robbed = true
-    TriggerClientEvent('mz-storerobbery:client:setSafeStatus', -1, safe, true)
-    SetTimeout(Config.SafeResetTime, function()
-        Config.SafesTarget[safe].robbed = false
-        TriggerClientEvent('mz-storerobbery:client:setSafeStatus', -1, safe, false)
-    end)
+    if not Config.SafesTargetGabz then 
+        Config.SafesTarget[safe].robbed = true
+        TriggerClientEvent('mz-storerobbery:client:setSafeStatus', -1, safe, true)
+        SetTimeout(Config.SafeResetTime, function()
+            Config.SafesTarget[safe].robbed = false
+            TriggerClientEvent('mz-storerobbery:client:setSafeStatus', -1, safe, false)
+        end)
+    else 
+        Config.SafesTargetGabz[safe].robbed = true
+        TriggerClientEvent('mz-storerobbery:client:setSafeStatus', -1, safe, true)
+        SetTimeout(Config.SafeResetTime, function()
+            Config.SafesTargetGabz[safe].robbed = false
+            TriggerClientEvent('mz-storerobbery:client:setSafeStatus', -1, safe, false)
+        end)
+    end 
 end)
 
 RegisterNetEvent('mz-storerobbery:server:setSafeStatusFailed', function(safe)
-    Config.SafesTarget[safe].robbed = false
-    TriggerClientEvent('mz-storerobbery:client:setSafeStatus', -1, safe, false)
+    if not Config.SafesTargetGabz then
+        Config.SafesTarget[safe].robbed = false
+        TriggerClientEvent('mz-storerobbery:client:setSafeStatus', -1, safe, false)
+    else 
+        Config.SafesTargetGabz[safe].robbed = false
+        TriggerClientEvent('mz-storerobbery:client:setSafeStatus', -1, safe, false)
+    end 
 end)
 
 ----------------
@@ -111,7 +140,7 @@ RegisterNetEvent('mz-storerobbery:server:takeMoney', function(register, isDone, 
         if isDone then
             if Config.CashRegisterReturn == "dirtymoney" then 
                 local amount = math.random(Config.minRegisterEarn, Config.maxRegisterEarn)
-                Player.Functions.AddItem('dirtymoney', amount, false)
+                Player.Functions.AddItem('dirtymoney', amount)
                 TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['dirtymoney'], "add", amount)
                 if Config.NotifyType == 'qb' then
                     TriggerClientEvent('QBCore:Notify', src, "You stole $" ..amount.. " from the till!", 'success')
@@ -120,14 +149,14 @@ RegisterNetEvent('mz-storerobbery:server:takeMoney', function(register, isDone, 
                 end
                 Wait(1500)
                 if math.random(1, 100) <= Config.liquorKey then 
-                    Player.Functions.AddItem('liquorkey', 1, false)
+                    Player.Functions.AddItem('liquorkey', 1)
                     TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['liquorkey'], "add", 1)
                 end
             elseif Config.CashRegisterReturn == "markedbills" then 
                 local info = {
                     worth = math.random(Config.minRegisterEarn, Config.maxRegisterEarn)
                 }
-                Player.Functions.AddItem('markedbills', 1, false, info)
+                Player.Functions.AddItem('markedbills', 1, info)
                 TriggerClientEvent('inventory:client:ItemBox', source, QBCore.Shared.Items['markedbills'], "add")
                 if Config.NotifyType == 'qb' then
                     TriggerClientEvent('QBCore:Notify', src, "You stole $" ..info.worth.. " from the till!", 'success')
@@ -136,7 +165,7 @@ RegisterNetEvent('mz-storerobbery:server:takeMoney', function(register, isDone, 
                 end
                 Wait(1500)
                 if math.random(1, 100) <= Config.liquorKey then 
-                    Player.Functions.AddItem('liquorkey', 1, false)
+                    Player.Functions.AddItem('liquorkey', 1)
                     TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['liquorkey'], "add", 1)
                 end
             elseif Config.CashRegisterReturn == "cash" then 
@@ -167,8 +196,8 @@ RegisterNetEvent('mz-storerobbery:server:SafeReward', function(safe, safeCheck)
         end
         if Config.SafeReturn == "dirtymoney" then 
             local amount = math.random(Config.minSafeEarn, Config.maxSafeEarn)
-            Player.Functions.AddItem('dirtymoney', amount, false)
-            TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['dirtymoney'], "add")
+            Player.Functions.AddItem('dirtymoney', amount)
+            TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['dirtymoney'], "add", amount)
             if Config.NotifyType == 'qb' then
                 TriggerClientEvent('QBCore:Notify', src, "You stole $" ..amount.. " from the safe!", 'success', 4500)
             elseif Config.NotifyType == "okok" then
@@ -407,9 +436,17 @@ end)
 RegisterNetEvent('mz-storerobbery:server:callCops', function(type, safe, streetLabel, coords)
     local cameraId
     if type == "safe" then
-        cameraId = Config.SafesTarget[safe].camId
+        if not Config.SafesTargetGabz then
+            cameraId = Config.SafesTarget[safe].camId
+        else 
+            cameraId = Config.SafesTargetGabz[safe].camId
+        end 
     else
-        cameraId = Config.RegistersTarget[safe].camId
+        if not Config.UseGabz then 
+            cameraId = Config.RegistersTarget[safe].camId
+        else 
+            cameraId = Config.RegistersTargetGabz[safe].camId
+        end 
     end
     local alertData = {
         title = "10-33 | Shop Robbery",
@@ -423,17 +460,31 @@ end)
 CreateThread(function()
     while true do
         local toSend = {}
-        for k in ipairs(Config.RegistersTarget) do
-            if Config.RegistersTarget[k].time > 0 and (Config.RegistersTarget[k].time - Config.tickInterval) >= 0 then
-                Config.RegistersTarget[k].time = Config.RegistersTarget[k].time - Config.tickInterval
-            else
-                if Config.RegistersTarget[k].robbed then
-                    Config.RegistersTarget[k].time = 0
-                    Config.RegistersTarget[k].robbed = false
-                    toSend[#toSend+1] = Config.RegistersTarget[k]
+        if not Config.UseGabz then 
+            for k in ipairs(Config.RegistersTarget) do
+                if Config.RegistersTarget[k].time > 0 and (Config.RegistersTarget[k].time - Config.tickInterval) >= 0 then
+                    Config.RegistersTarget[k].time = Config.RegistersTarget[k].time - Config.tickInterval
+                else
+                    if Config.RegistersTarget[k].robbed then
+                        Config.RegistersTarget[k].time = 0
+                        Config.RegistersTarget[k].robbed = false
+                        toSend[#toSend+1] = Config.RegistersTarget[k]
+                    end
                 end
             end
-        end
+        else 
+            for k in ipairs(Config.RegistersTargetGabz) do
+                if Config.RegistersTargetGabz[k].time > 0 and (Config.RegistersTargetGabz[k].time - Config.tickInterval) >= 0 then
+                    Config.RegistersTargetGabz[k].time = Config.RegistersTargetGabz[k].time - Config.tickInterval
+                else
+                    if Config.RegistersTargetGabz[k].robbed then
+                        Config.RegistersTargetGabz[k].time = 0
+                        Config.RegistersTargetGabz[k].robbed = false
+                        toSend[#toSend+1] = Config.RegistersTargetGabz[k]
+                    end
+                end
+            end
+        end 
         if #toSend > 0 then
             TriggerClientEvent('mz-storerobbery:client:setRegisterStatus', -1, toSend, false)
         end
@@ -446,9 +497,17 @@ QBCore.Functions.CreateCallback('mz-storerobbery:server:getPadlockCombination', 
 end)
 
 QBCore.Functions.CreateCallback('mz-storerobbery:server:getRegisterStatus', function(_, cb)
-    cb(Config.RegistersTarget)
+    if not Config.UseGabz then 
+        cb(Config.RegistersTarget)
+    else 
+        cb(Config.RegistersTargetGabz)
+    end 
 end)
 
 QBCore.Functions.CreateCallback('mz-storerobbery:server:getSafeStatus', function(_, cb)
-    cb(Config.SafesTarget)
+    if not Config.SafesTargetGabz then 
+        cb(Config.SafesTarget)
+    else 
+        cb(Config.SafesTargetGabz)
+    end 
 end)
