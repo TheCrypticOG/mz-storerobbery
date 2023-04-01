@@ -544,7 +544,7 @@ RegisterNetEvent('mz-storerobbery:client:circleLockpick', function()
             end 
             Wait(2000)
             if math.random(1, 100) <= Config.LockpickBreakChance then
-                TriggerServerEvent("QBCore:Server:RemoveItem", "lockpick", 1)
+                TriggerServerEvent("mz-storerobbery:server:RemoveLockpick")
                 TriggerEvent('inventory:client:ItemBox', QBCore.Shared.Items["lockpick"], "remove")
                 if Config.NotifyType == 'qb' then
                     QBCore.Functions.Notify('You broke the lockpick...', "error", 3500)
@@ -612,7 +612,7 @@ RegisterNetEvent('mz-storerobbery:client:circleLockpickAdvanced', function()
             end 
             Wait(2000)
             if math.random(1, 100) <= Config.AdvancedBreakChance then
-                TriggerServerEvent("QBCore:Server:RemoveItem", "advancedlockpick", 1)
+                TriggerServerEvent("mz-storerobbery:server:RemoveAdvanced", 1)
                 TriggerEvent('inventory:client:ItemBox', QBCore.Shared.Items["advancedlockpick"], "remove")
                 if Config.NotifyType == 'qb' then
                     QBCore.Functions.Notify('You broke the lockpick...', "error", 3500)
