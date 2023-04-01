@@ -4,7 +4,7 @@ game 'gta5'
 
 description 'mz-storerobbery - a target-based replacement of qb-storerobbery (with or without mz-skills): Discord Support: https://discord.gg/CqNYvE3CkA'
 
-version '1.5.1'
+version '1.5.2'
 
 author 'Mr_Zain#4139'
 

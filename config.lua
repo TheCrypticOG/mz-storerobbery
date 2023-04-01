@@ -85,7 +85,7 @@ Config.circleparses = 7                         -- number of circle parses a pla
 Config.circletime = 13                          -- time for player to complete one parse of the circle
 
 -- Reward type:
-Config.CashRegisterReturn = "dirtymoney"        -- Set to "dirtymoney", "markedbills" or "cash" to alter the reward given.
+Config.CashRegisterReturn = "markedbills"        -- Set to "dirtymoney", "markedbills" or "cash" to alter the reward given.
 Config.minRegisterEarn = 2000                   -- Minimum amount earnt from stealing from a cash register
 Config.maxRegisterEarn = 5000                   -- Maximum amount earnt from stealing from a cash register
 
@@ -327,7 +327,7 @@ Config.RegistersTarget = {
 
 Config.SafeReqItem = "usb2"                     -- Change to any item you want (needs to be in qb-core/shared/items.lua)
 
-Config.SafeReturn = "dirtymoney"                -- Set to "dirtymoney", "markedbills" or "cash" to alter the reward given.
+Config.SafeReturn = "markedbills"                -- Set to "dirtymoney", "markedbills" or "cash" to alter the reward given.
 
 Config.minSafeEarn = 7000                       -- Minimum amount earnt from stealing from a safe (in dirtymoney)
 Config.maxSafeEarn = 22000                      -- Maximum amount earnt from stealing from a safe (in dirtymoney)
@@ -442,7 +442,7 @@ Config.RareItem3Amount = 1                      -- Amount of the rare item playe
 ------------------------
 --SAFE (ALCOHOL STORE)--
 ------------------------
-Config.AlcoholReturn = "dirtymoney"             -- Set to "dirtymoney", "markedbills" or "cash" to alter the reward given.
+Config.AlcoholReturn = "markedbills"             -- Set to "dirtymoney", "markedbills" or "cash" to alter the reward given.
 
 Config.AlcoholminSafeEarn = 9000                -- Minimum amount earnt from stealing from a safe (in dirtymoney)
 Config.AlcoholmaxSafeEarn = 27000               -- Maximum amount earnt from stealing from a safe (in dirtymoney)

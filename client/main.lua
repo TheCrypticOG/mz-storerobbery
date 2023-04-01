@@ -145,7 +145,7 @@ end
 function setupSafes()
     QBCore.Functions.TriggerCallback('mz-storerobbery:server:getSafeStatus', function(Safes)
         for k in pairs(Safes) do
-            if not Config.SafesTargetGabz then 
+            if not Config.UseGabz then 
                 Config.SafesTarget[k].robbed = Safes[k].robbed
             else 
                 Config.SafesTargetGabz[k].robbed = Safes[k].robbed
@@ -527,8 +527,10 @@ RegisterNetEvent('mz-storerobbery:client:circleLockpick', function()
                         if Config.StressEnabled then 
                             TriggerServerEvent('hud:server:GainStress', 1)
                         end 
-                        Wait(5000)
-                        TriggerServerEvent("InteractSound_SV:PlayOnSource", "lockpick", 0.5)
+                        Wait(2500)
+                        if openingDoor then 
+                            TriggerServerEvent("InteractSound_SV:PlayOnSource", "lockpick", 1)
+                        end 
                     end
                 end)
             end
@@ -593,8 +595,10 @@ RegisterNetEvent('mz-storerobbery:client:circleLockpickAdvanced', function()
                         if Config.StressEnabled then 
                             TriggerServerEvent('hud:server:GainStress', 1)
                         end 
-                        Wait(5000)
-                        TriggerServerEvent("InteractSound_SV:PlayOnSource", "lockpick", 0.5)
+                        Wait(2500)
+                        if openingDoor then 
+                            TriggerServerEvent("InteractSound_SV:PlayOnSource", "lockpick", 1)
+                        end 
                     end
                 end)
             end
@@ -662,8 +666,10 @@ local function lockpickFinish(success)
                     if Config.StressEnabled then 
                         TriggerServerEvent('hud:server:GainStress', 1)
                     end 
-                    Wait(5000)
-                    TriggerServerEvent("InteractSound_SV:PlayOnSource", "lockpick", 0.5)
+                    Wait(2500)
+                    if openingDoor then 
+                        TriggerServerEvent("InteractSound_SV:PlayOnSource", "lockpick", 1)
+                    end 
                 end
             end)
         end
@@ -721,8 +727,10 @@ local function lockpickFinishAdvanced(success)
                     if Config.StressEnabled then 
                         TriggerServerEvent('hud:server:GainStress', 1)
                     end 
-                    Wait(5000)
-                    TriggerServerEvent("InteractSound_SV:PlayOnSource", "lockpick", 0.5)
+                    Wait(2500)
+                    if openingDoor then 
+                        TriggerServerEvent("InteractSound_SV:PlayOnSource", "lockpick", 1)
+                    end 
                 end
             end)
         end
@@ -765,7 +773,7 @@ end
 -------------------
 
 CreateThread(function()
-    if not Config.SafesTargetGabz then 
+    if not Config.UseGabz then 
         for safe, v in pairs(Config.SafesTarget) do
             exports["qb-target"]:AddBoxZone("zainsafes" .. safe, v.coords, 1, 1, {
                 name = "zainsafe" .. safe,
@@ -826,7 +834,7 @@ end)
 
 function StealfromSafe(safe)
     QBCore.Functions.TriggerCallback('mz-storerobbery:server:getCops', function(cops)
-        if not Config.SafesTargetGabz then
+        if not Config.UseGabz then
             if not Config.SafesTarget[safe].robbed then
                 if cops >= Config.MinimumStoreRobberyPolice then
                     currentSafe = safe
@@ -1862,7 +1870,7 @@ RegisterNetEvent('SafeCracker:EndMinigame', function(won)
     if currentSafe ~= 0 then
         if won then
             if currentSafe ~= 0 then
-                if not Config.SafesTargetGabz then 
+                if not Config.UseGabz then 
                     if not Config.SafesTarget[currentSafe].robbed then
                         SetNuiFocus(false, false)
                         TriggerServerEvent("mz-storerobbery:server:setSafeStatus", currentSafe)
@@ -1955,7 +1963,7 @@ end)
 
 RegisterNUICallback('PadLockSuccess', function(_, cb)
     if currentSafe ~= 0 then
-        if not Config.SafesTargetGabz then 
+        if not Config.UseGabz then 
             if not Config.SafesTarget[currentSafe].robbed then
                 SendNUIMessage({
                     action = "kekw",
@@ -1996,7 +2004,7 @@ RegisterNetEvent('mz-storerobbery:client:setRegisterStatus', function(k, bool)
 end)
 
 RegisterNetEvent('mz-storerobbery:client:setSafeStatus', function(safe, bool)
-    if not Config.SafesTargetGabz then
+    if not Config.UseGabz then
         Config.SafesTarget[safe].robbed = bool
     else 
         Config.SafesTargetGabz[safe].robbed = bool

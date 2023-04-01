@@ -95,7 +95,7 @@ RegisterNetEvent('mz-storerobbery:server:setRegisterStatusFailed', function(k)
 end)
 
 RegisterNetEvent('mz-storerobbery:server:setSafeStatus', function(safe)
-    if not Config.SafesTargetGabz then 
+    if not Config.UseGabz then 
         Config.SafesTarget[safe].robbed = true
         TriggerClientEvent('mz-storerobbery:client:setSafeStatus', -1, safe, true)
         SetTimeout(Config.SafeResetTime, function()
@@ -113,7 +113,7 @@ RegisterNetEvent('mz-storerobbery:server:setSafeStatus', function(safe)
 end)
 
 RegisterNetEvent('mz-storerobbery:server:setSafeStatusFailed', function(safe)
-    if not Config.SafesTargetGabz then
+    if not Config.UseGabz then
         Config.SafesTarget[safe].robbed = false
         TriggerClientEvent('mz-storerobbery:client:setSafeStatus', -1, safe, false)
     else 
@@ -156,7 +156,7 @@ RegisterNetEvent('mz-storerobbery:server:takeMoney', function(register, isDone, 
                 local info = {
                     worth = math.random(Config.minRegisterEarn, Config.maxRegisterEarn)
                 }
-                Player.Functions.AddItem('markedbills', 1, info)
+                Player.Functions.AddItem('markedbills', 1, false, info)
                 TriggerClientEvent('inventory:client:ItemBox', source, QBCore.Shared.Items['markedbills'], "add")
                 if Config.NotifyType == 'qb' then
                     TriggerClientEvent('QBCore:Notify', src, "You stole $" ..info.worth.. " from the till!", 'success')
@@ -436,7 +436,7 @@ end)
 RegisterNetEvent('mz-storerobbery:server:callCops', function(type, safe, streetLabel, coords)
     local cameraId
     if type == "safe" then
-        if not Config.SafesTargetGabz then
+        if Config.UseGabz then
             cameraId = Config.SafesTarget[safe].camId
         else 
             cameraId = Config.SafesTargetGabz[safe].camId
@@ -505,7 +505,7 @@ QBCore.Functions.CreateCallback('mz-storerobbery:server:getRegisterStatus', func
 end)
 
 QBCore.Functions.CreateCallback('mz-storerobbery:server:getSafeStatus', function(_, cb)
-    if not Config.SafesTargetGabz then 
+    if not Config.UseGabz then 
         cb(Config.SafesTarget)
     else 
         cb(Config.SafesTargetGabz)
