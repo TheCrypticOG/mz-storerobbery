@@ -475,13 +475,13 @@ Config.SafesTarget = {
     },
     [2] = {
         ["coords"] = vector3(-1478.94, -375.5, 39.16), 
-        type = "padlock",
+        type = "keypad",
         robbed = false, 
         camId = 5
     },
     [3] = {
         ["coords"] = vector3(-1220.85, -916.05, 11.32), 
-        type = "padlock",
+        type = "keypad",
         robbed = false, 
         camId = 6
     },
@@ -499,7 +499,7 @@ Config.SafesTarget = {
     },
     [6] = {
         ["coords"] = vector3(1126.77, -980.1, 45.41), 
-        type = "padlock",
+        type = "keypad",
         robbed = false, 
         camId = 9
     },
@@ -523,7 +523,7 @@ Config.SafesTarget = {
     },
     [10] = {
         ["coords"] = vector3(-2959.64, 387.08, 14.04), 
-        type = "padlock",
+        type = "keypad",
         robbed = false, 
         camId = 13
     },
@@ -547,7 +547,7 @@ Config.SafesTarget = {
     },
     [14] = {
         ["coords"] = vector3(1169.31, 2717.79, 37.15), 
-        type = "padlock",
+        type = "keypad",
         robbed = false, 
         camId = 17
     },
@@ -571,7 +571,7 @@ Config.SafesTarget = {
     },
     [18] = {
         ["coords"] = vector3(-168.40, 6318.80, 30.58), 
-        type = "padlock",
+        type = "keypad",
         robbed = false, 
         camId = 27
     },
@@ -849,13 +849,13 @@ Config.SafesTargetGabz = {
     },
     [2] = {
         ["coords"] = vector3(-1478.94, -375.5, 39.16), 
-        type = "padlock",
+        type = "keypad",
         robbed = false, 
         camId = 5
     },
     [3] = {
         ["coords"] = vector3(-1220.85, -916.05, 11.32), 
-        type = "padlock",
+        type = "keypad",
         robbed = false, 
         camId = 6
     },
@@ -873,7 +873,7 @@ Config.SafesTargetGabz = {
     },
     [6] = {
         ["coords"] = vector3(1126.77, -980.1, 45.41), 
-        type = "padlock",
+        type = "keypad",
         robbed = false, 
         camId = 9
     },
@@ -897,7 +897,7 @@ Config.SafesTargetGabz = {
     },
     [10] = {
         ["coords"] = vector3(-2959.64, 387.08, 14.04), 
-        type = "padlock",
+        type = "keypad",
         robbed = false, 
         camId = 13
     },
@@ -921,7 +921,7 @@ Config.SafesTargetGabz = {
     },
     [14] = {
         ["coords"] = vector3(1169.31, 2717.79, 37.15), 
-        type = "padlock",
+        type = "keypad",
         robbed = false, 
         camId = 17
     },
@@ -945,7 +945,7 @@ Config.SafesTargetGabz = {
     },
     [18] = {
         ["coords"] = vector3(-168.40, 6318.80, 30.58), 
-        type = "padlock",
+        type = "keypad",
         robbed = false, 
         camId = 27
     },
