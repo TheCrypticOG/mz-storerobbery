@@ -1,9 +1,5 @@
 ## MZ-STOREROBBERY - a fork of the popular qb-storerobbery with or without mz-skills integration
 
-PLEASE MAKE SURE YOU USE EITHER THE BASE CONFIG OR THE GABZ_CONFIG (NOT BOTH) - DELETE THE ONE YOU ARE NOT USING. 
-
-PLEASE ALSO NOTE, NO SUPPORT IS OFFERED FOR THE GABZ_CONFIG AND IT WILL NOT BE UPDATED.
-
 By Mr_Zain#4139
 
 - Outward file name changed to mz-storerobbery to track developments on forkline - all credit to Kakarot and QB-Core - this is a qb-core base script and all internal functions retain qb-storerobbery designations.
@@ -78,3 +74,43 @@ If using lj-inventory, add the images to: lj-inventory/html/images/ - if you are
 8. Please restart your server ensuring that mz-storerobbery is ensured/starts after qb-core starts (ideally it should just form part of your [qb] folder).
 
 9. Big thanks to Savage#2092 for configuring mz-storerobbery with the gabz MLO coordinates. If you experience errors, please do not annoy either of us as I am not offering supporting for MLO location changes - it's very easy to change vector coordinates in the config file.
+
+### UPDATE LOG AND CHANGES RE: LATEST VERSION:
+
+## **mz-storerobbery (v.1.6.0)**
+- Optimised mz-skills skill check throughout resource;
+- Significantly improved config options - now comprehensive for each of the 4x hacks: maze, varHack, scrambler and mHacking;
+- Improved overall config layout re: additional gabz location support and grouping features to change; 
+
+- Revamped from scratch the liquor store robbery removing safecracker dependency which is now equipped to use one of the 4x hacks available for convenience stored (it can be a different hack from the convenience store hack, they are not connected). 
+
+Please see config references: 
+
+```lua
+Config.Hacktype = "mHacking"
+
+Config.HacktypeLiquor = "varHack"
+```
+
+By default: 
+A. a liquor store safe cannot be opened unless player has a "liquorkey" (which is also used to open the liquor store doors from the outside if you wish to use this functionality - if not, simply ignore the doorlock config); 
+B. "liquorkey" item is set via config so it can be changed to any server item by changing: 
+
+```lua
+Config.LiquorReqItem = "liquorkey" 
+```
+
+C. The "liquorkey" is one of the drops a player has a random chance to obtain from robbing cash registers and convenience stores. This gives progression between convenience stores and liquor stores. The default chances have been set as follows, see these variables in the config: 
+```lua
+--Chance to drop item to get into liquor store robbery
+
+Config.LiquorItem = "liquorkey"
+
+Config.liquorKey = 4                           -- Percentage chance to find a "liquorkey" from a cash register
+
+Config.liquorKeySafe = 15                      -- Percentage chance to find a "liquorkey" from a convenience store safe.
+```
+
+**PLEASE NOTE: **For those of you who are looking for optimisation and resource efficiency: 
+1. you can delete "safecracker" from [standalone] unless your server uses it for other resources. 
+2. you can also delete "qb-lock" as neither this resource (not any other mz- resource) uses the qb-lock dependency.
