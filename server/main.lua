@@ -25,41 +25,6 @@ QBCore.Functions.CreateCallback('mz-storerobbery:server:getCops', function(sourc
     cb(amount)
 end)
 
-------------------
---SAFE FUNCTIONS--
-------------------
-
-CreateThread(function()
-    while true do
-        SafeCodes = {
-            [1] = math.random(1000, 9999),
-            [2] = {math.random(1, 149), math.random(500.0, 600.0), math.random(360.0, 400), math.random(600.0, 900.0)},
-            [3] = {math.random(150, 359), math.random(-300.0, -60.0), math.random(0, 100), math.random(-500.0, -160.0)},
-            [4] = math.random(1000, 9999),
-            [5] = math.random(1000, 9999),
-            [6] = {math.random(1, 149), math.random(150.0, 200.0), math.random(100, 140), math.random(150.0, 220.0), math.random(-100, 100), math.random(140, 300)},
-            [7] = math.random(1000, 9999),
-            [8] = math.random(1000, 9999),
-            [9] = math.random(1000, 9999),
-            [10] = {math.random(1, 149), math.random(300.0, 500.0), math.random(200, 260), math.random(500.0, 800.0), math.random(300, 440), math.random(650, 900)},
-            [11] = math.random(1000, 9999),
-            [12] = math.random(1000, 9999),
-            [13] = math.random(1000, 9999),
-            [14] = {math.random(150, 450), math.random(-360.0, 0.0), math.random(360, 720)},
-            [15] = math.random(1000, 9999),
-            [16] = math.random(1000, 9999),
-            [17] = math.random(1000, 9999),
-            [18] = {math.random(150, 450), math.random(1.0, 100.0), math.random(360, 450), math.random(300.0, 340.0), math.random(350, 400), math.random(320.0, 340.0), math.random(350, 600)},
-            [19] = math.random(1000, 9999),
-        }
-        Wait((1000 * 60) * 40)
-    end
-end)
-
-QBCore.Functions.CreateCallback('mz-storerobbery:server:isCombinationRight', function(_, cb, safe)
-    cb(SafeCodes[safe])
-end)
-
 -------------------
 --SERVER LOCKOUTS--
 -------------------
@@ -149,8 +114,8 @@ RegisterNetEvent('mz-storerobbery:server:takeMoney', function(register, isDone, 
                 end
                 Wait(1500)
                 if math.random(1, 100) <= Config.liquorKey then 
-                    Player.Functions.AddItem('liquorkey', 1)
-                    TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['liquorkey'], "add", 1)
+                    Player.Functions.AddItem(Config.LiquorItem, 1)
+                    TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.LiquorItem], "add", 1)
                 end
             elseif Config.CashRegisterReturn == "markedbills" then 
                 local info = {
@@ -165,8 +130,8 @@ RegisterNetEvent('mz-storerobbery:server:takeMoney', function(register, isDone, 
                 end
                 Wait(1500)
                 if math.random(1, 100) <= Config.liquorKey then 
-                    Player.Functions.AddItem('liquorkey', 1)
-                    TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['liquorkey'], "add", 1)
+                    Player.Functions.AddItem(Config.LiquorItem, 1)
+                    TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.LiquorItem], "add", 1)
                 end
             elseif Config.CashRegisterReturn == "cash" then 
                 local cleanmoney = math.random(Config.minRegisterEarn, Config.maxRegisterEarn)
@@ -175,6 +140,10 @@ RegisterNetEvent('mz-storerobbery:server:takeMoney', function(register, isDone, 
                     TriggerClientEvent('QBCore:Notify', src, "You stole $" ..cleanmoney.. " from the till!", 'success')
                 elseif Config.NotifyType == "okok" then
                     TriggerClientEvent('okokNotify:Alert', source, "RAIDED THE TILL", "You stole $" ..cleanmoney.. " from the till!", 4500, 'success')
+                end
+                if math.random(1, 100) <= Config.liquorKey then 
+                    Player.Functions.AddItem(Config.LiquorItem, 1)
+                    TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.LiquorItem], "add", 1)
                 end
             else 
                 print("You have not properly configured 'Config.CashRegisterReturn', please refer to config.lua")
@@ -185,7 +154,7 @@ RegisterNetEvent('mz-storerobbery:server:takeMoney', function(register, isDone, 
     end
 end)
 
--- SAFES
+-- CONVENIENCE STORES
 
 RegisterNetEvent('mz-storerobbery:server:SafeReward', function(safe, safeCheck)
     if not safeCheck then 
@@ -202,6 +171,10 @@ RegisterNetEvent('mz-storerobbery:server:SafeReward', function(safe, safeCheck)
                 TriggerClientEvent('QBCore:Notify', src, "You stole $" ..amount.. " from the safe!", 'success', 4500)
             elseif Config.NotifyType == "okok" then
                 TriggerClientEvent('okokNotify:Alert', source, "RAIDED THE SAFE", "You stole $" ..amount.. " from the safe!", 4500, 'success')
+            end
+            if math.random(1, 100) <= Config.liquorKeySafe then 
+                Player.Functions.AddItem(Config.LiquorItem, 1)
+                TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.LiquorItem], "add", 1)
             end
             if Config.RareItemDrops then 
                 Wait(1000)
@@ -231,6 +204,10 @@ RegisterNetEvent('mz-storerobbery:server:SafeReward', function(safe, safeCheck)
             elseif Config.NotifyType == "okok" then
                 TriggerClientEvent('okokNotify:Alert', source, "RAIDED THE SAFE", "You stole $" ..info.worth.. " from the safe!", 4500, 'success')
             end
+            if math.random(1, 100) <= Config.liquorKeySafe then 
+                Player.Functions.AddItem(Config.LiquorItem, 1)
+                TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.LiquorItem], "add", 1)
+            end
             if Config.RareItemDrops then
                 Wait(1000)
                 if math.random(1, 100) <= Config.RareItem1Chance then 
@@ -256,6 +233,10 @@ RegisterNetEvent('mz-storerobbery:server:SafeReward', function(safe, safeCheck)
             elseif Config.NotifyType == "okok" then
                 TriggerClientEvent('okokNotify:Alert', source, "RAIDED THE TILL", "You stole $" ..cleanmoney.. " from the safe!", 4500, 'success')
             end
+            if math.random(1, 100) <= Config.liquorKeySafe then 
+                Player.Functions.AddItem(Config.LiquorItem, 1)
+                TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.LiquorItem], "add", 1)
+            end
             if Config.RareItemDrops then
                 Wait(1000)
                 if math.random(1, 100) <= Config.RareItem1Chance then 
@@ -280,6 +261,8 @@ RegisterNetEvent('mz-storerobbery:server:SafeReward', function(safe, safeCheck)
         print("Someone is attempting to trigger 'mz-storerobbery:server:SafeReward' externally.")
     end
 end)
+
+-- LIQUOR STORES
 
 RegisterNetEvent('mz-storerobbery:server:SafeRewardAlcohol', function(safe, safeCheck)
     if not safeCheck then 
@@ -382,8 +365,15 @@ end)
 RegisterServerEvent('mz-storerobbery:server:ItemRemoval', function()
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
-    Player.Functions.RemoveItem('usb2', 1)
-	TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['usb2'], "remove", 1)
+    Player.Functions.RemoveItem(Config.SafeReqItem, 1)
+	TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.SafeReqItem], "remove", 1)
+end)
+
+RegisterServerEvent('mz-storerobbery:server:ItemRemovalLiquor', function()
+    local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
+    Player.Functions.RemoveItem(Config.LiquorReqItem, 1)
+	TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.LiquorReqItem], "remove", 1)
 end)
 
 RegisterServerEvent('mz-storerobbery:server:RemoveLockpick', function()
@@ -420,13 +410,6 @@ RegisterServerEvent('mz-storerobbery:server:KeyRemoval', function()
     elseif Config.NotifyType == "okok" then
         TriggerClientEvent('okokNotify:Alert', source, "KEY BROKE", "You broke the key... Well done...", 4500, 'error')
     end
-end)
-
-RegisterServerEvent('mz-storerobbery:server:KeyRemovalSuccess', function()
-    local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
-    Player.Functions.RemoveItem('liquorkey', 1)
-	TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['liquorkey'], "remove", 1)
 end)
 
 -------------
