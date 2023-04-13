@@ -29,8 +29,8 @@ Config.tickInterval = 1000                      -- No need to change this.
 --POLICE VARIABLES--
 --------------------
 Config.UsePoliceName = false                    -- If this is set to "false", server will check for jobname: "police", otherwise it will check for job type for newer qb-core builds
-Config.PoliceJobType = "leo"                    -- Name of job type used by your server - used if "Config.UsePoliceName = true"
-Config.PoliceJobName = "police"                 -- Name of police role in your server - used if "Config.UsePoliceName = false"
+Config.PoliceJobType = "leo"                    -- Name of job type used by your server - NOTE: Only used if "Config.UsePoliceName = false"
+Config.PoliceJobName = "police"                 -- Name of police role in your server - NOTE: Only used if "Config.UsePoliceName = true"
 
 Config.MinimumStoreRobberyPolice = 0            -- Minimum police that need to be on duty before a store can be robbed.
 
