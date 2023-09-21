@@ -70,9 +70,9 @@ Config.HackingXPLoss = 10                       -- "Hacking" XP lost for failing
 Config.CriminalXPSkill = "Heist Reputation"
 
 -- XP Modifiers (Registers)
-Config.HeistXPlow2 = 2                           -- Lowest amount of "Heist Reputation" XP added upon successful hack.
-Config.HeistXPmid2 = 3                           -- Mid level "Heist Reputation" XP added upon successful hack.
-Config.HeistXPhigh2 = 4                          -- Highest amount of "Heist Reputation" XP added upon successful hack.
+Config.HeistXPLow2 = 2                           -- Lowest amount of "Heist Reputation" XP added upon successful hack.
+Config.HeistXPMid2 = 3                           -- Mid level "Heist Reputation" XP added upon successful hack.
+Config.HeistXPHigh2 = 4                          -- Highest amount of "Heist Reputation" XP added upon successful hack.
 
 -- XP Modifiers (SAFES)
 Config.HeistXPlow = 4                           -- Lowest amount of "Heist Reputation" XP added upon successful hack.
