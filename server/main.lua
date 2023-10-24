@@ -265,7 +265,7 @@ RegisterNetEvent('mz-storerobbery:server:SafeRewardAlcohol', function(safe, safe
         if Config.AlcoholReturn == "dirtymoney" then 
             local amount = math.random(Config.AlcoholminSafeEarn, Config.AlcoholmaxSafeEarn)
             Player.Functions.AddItem('dirtymoney', amount, false)
-            TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['dirtymoney'], "add")
+            TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['dirtymoney'], "add", amount)
             if Config.NotifyType == 'qb' then
                 TriggerClientEvent('QBCore:Notify', src, "You stole $" ..amount.. " from the safe!", 'success', 4500)
             elseif Config.NotifyType == "okok" then
